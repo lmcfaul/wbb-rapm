@@ -1,0 +1,58 @@
+{% extends "base.html.j2" %}
+{% block title %}About / Validation &middot; WBB RAPM{% endblock %}
+{% block content %}
+<div class="panel">
+  <h2>What is RAPM?</h2>
+  <p>RAPM (regularized adjusted plus-minus) measures each player's impact on point margin
+  per 100 possessions, <b>adjusted for everyone else on the floor</b>. Every constant-lineup
+  stint of every game becomes a regression row: the five players on each side are the
+  predictors and the stint's scoring margin is the outcome. Because all ten on-court players
+  enter each row, a player gets no credit for riding great teammates and no penalty for
+  facing great opponents &mdash; the regression separates those effects.</p>
+  <p>The model is a <b>ridge regression</b>: a penalty &lambda; (chosen by cross-validation,
+  grouped by game so no game leaks across folds) shrinks every coefficient toward zero.
+  Low-minute players have little evidence to push against the prior, so they land near
+  average instead of topping the leaderboard on a lucky 30 minutes &mdash; that is the point
+  of the regularization. Players under {{ low_minutes_flag }} minutes are additionally
+  flagged and hidden by default.</p>
+  <p><b>ORAPM / DRAPM</b> come from a second model with two rows per stint (one per side's
+  offense), giving each player separate offensive and defensive impacts; RAPM = ORAPM + DRAPM.
+  Non-D1 opponents (exhibitions, buy games) are collapsed into a single shared column so they
+  cannot distort D1 ratings.</p>
+  <p class="muted small">Caveat: players who almost always share the floor (or almost never
+  play apart from a star) are hard to separate statistically; ridge keeps them stable but
+  their O/D splits deserve skepticism.</p>
+</div>
+
+<div class="panel">
+  <h2>Pipeline validation &mdash; {{ season_label }}</h2>
+  <div class="statgrid">
+    <div class="stat"><div class="v">{{ '%.2f'|format(v.team_sanity.pearson_rapm_vs_net_margin) }}</div>
+      <div class="k">corr: team RAPM vs net margin</div></div>
+    <div class="stat"><div class="v">{{ '%.2f'|format(v.team_sanity.pearson_rapm_vs_win_pct) }}</div>
+      <div class="k">corr: team RAPM vs win%</div></div>
+    <div class="stat"><div class="v">{{ '%.2f'|format(v.lineups.mean_mae_minutes) }}</div>
+      <div class="k">minute reconciliation MAE</div></div>
+    <div class="stat"><div class="v">{{ v.lineups.n_excluded }}/{{ v.lineups.n_games }}</div>
+      <div class="k">games excluded (QA)</div></div>
+    <div class="stat"><div class="v">{{ '{:,}'.format(v.model.n_stints|int) }}</div>
+      <div class="k">stints in model</div></div>
+    <div class="stat"><div class="v">{{ '%.1f'|format(v.model.hca_margin) }}</div>
+      <div class="k">home-court adv (pts/100)</div></div>
+  </div>
+  <p class="small muted" style="margin-top:12px">
+  Lineups are reconstructed from ESPN play-by-play substitution events and validated by
+  comparing each player's reconstructed floor time to her official box-score minutes; games
+  exceeding {{ v.lineups.threshold }} min mean absolute error per player are excluded.
+  The team check aggregates player RAPM (minute-weighted) per team and confirms that good
+  teams rate higher &mdash; positive correlation with both scoring margin and winning percentage.
+  Ridge &lambda;: {{ v.model.lam_margin|int }} (margin model), {{ v.model.lam_od|int }} (O/D model).</p>
+</div>
+
+<div class="panel">
+  <h2>Build</h2>
+  <p class="small">Data is pulled with <a href="https://wehoop.sportsdataverse.org/">wehoop</a> (R),
+  modeled with scikit-learn ridge regression (Python), and rendered to this fully static site.
+  Re-run any season with <code>make season YEAR=&lt;year&gt;</code>.</p>
+</div>
+{% endblock %}

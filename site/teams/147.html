@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Montana State Bobcats &middot; WBB RAPM 2025–26</title>
+<style>
+:root {
+  --bg: #0e1117; --panel: #161b25; --panel2: #1d2433; --text: #e6e9f0;
+  --muted: #8b93a7; --accent: #4ea1ff; --good: #3ddc84; --bad: #ff6b6b;
+  --border: #262e40;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+       background: var(--bg); color: var(--text); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header { background: var(--panel); border-bottom: 1px solid var(--border);
+         padding: 14px 24px; display: flex; align-items: baseline; gap: 22px; flex-wrap: wrap; }
+header h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
+header h1 a { color: var(--text); }
+header nav a { color: var(--muted); margin-right: 14px; font-size: 14px; }
+header nav a.active, header nav a:hover { color: var(--text); }
+main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+         padding: 18px 20px; margin-bottom: 20px; }
+h2 { font-size: 16px; margin: 0 0 12px; color: var(--text); }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+.controls input[type=text], .controls select, .controls input[type=number] {
+  background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 7px 10px; font-size: 13px; }
+.controls label { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; cursor: pointer; user-select: none; position: sticky; top: 0;
+     background: var(--panel); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+th.sorted-desc::after { content: " \25BE"; color: var(--accent); }
+th.sorted-asc::after { content: " \25B4"; color: var(--accent); }
+td.l, th.l { text-align: left; }
+tr.player-row { cursor: pointer; }
+tr.player-row:hover { background: var(--panel2); }
+tr.low-sample td { opacity: .45; }
+.pcell { display: flex; align-items: center; gap: 9px; }
+.pcell img, .tcell img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #222; }
+.tcell { display: flex; align-items: center; gap: 7px; }
+.tcell img { border-radius: 4px; width: 20px; height: 20px; }
+.pos { color: var(--muted); }
+.num-good { color: var(--good); } .num-bad { color: var(--bad); }
+.muted { color: var(--muted); } .small { font-size: 12px; }
+.badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--panel2);
+         color: var(--muted); border: 1px solid var(--border); margin-left: 6px; }
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.stat { background: var(--panel2); border-radius: 8px; padding: 10px 12px; }
+.stat .v { font-size: 20px; font-weight: 700; } .stat .k { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+#modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 50; }
+#modal { display: none; position: fixed; z-index: 51; top: 8vh; left: 50%; transform: translateX(-50%);
+         width: min(560px, 94vw); background: var(--panel); border: 1px solid var(--border);
+         border-radius: 12px; padding: 22px; }
+#modal .close { position: absolute; top: 10px; right: 14px; cursor: pointer; color: var(--muted); font-size: 20px; }
+.bar { height: 8px; border-radius: 4px; background: var(--panel2); position: relative; margin: 4px 0 10px; }
+.bar .fill { height: 100%; border-radius: 4px; }
+footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px 0; }
+.dl { font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="../index.html">WBB RAPM</a> <span class="muted small">D1 women's basketball, adjusted player ratings</span></h1>
+  <nav>
+    <a href="../index.html" >Leaderboard</a>
+    <a href="../teamindex.html" >Teams</a>
+    <a href="../stanford.html" >Stanford</a>
+    <a href="../about.html" >About / Validation</a>
+  </nav>
+</header>
+<main>
+
+<div class="panel">
+  <div class="pcell" style="gap:14px">
+    <img src="https://a.espncdn.com/i/teamlogos/ncaa/500/147.png" style="width:54px;height:54px;border-radius:8px" onerror="this.style.visibility='hidden'">
+    <div>
+      <h2 style="margin:0">Montana State Bobcats &mdash; 2025–26</h2>
+      <span class="muted small">27–8 &middot; net margin +12.8/game</span>
+    </div>
+  </div>
+  <div class="statgrid" style="margin-top:16px">
+    <div class="stat"><div class="v num-good">+3.0</div>
+      <div class="k">Team RAPM (min-weighted)</div></div>
+    <div class="stat"><div class="v">#74</div><div class="k">of 361 D1 teams</div></div>
+    <div class="stat"><div class="v">12</div><div class="k">Rated players</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Roster by RAPM</h2>
+  <table>
+    <thead><tr><th>D1 rank</th><th class="l">Player</th><th>Pos</th><th>GP</th><th>Min</th>
+      <th>ORAPM</th><th>DRAPM</th><th>RAPM</th></tr></thead>
+    <tbody>
+    
+      <tr >
+        <td class="muted">59</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5240996.png" onerror="this.style.visibility='hidden'">Taylee Chirrick</span></td>
+        <td class="pos">G</td>
+        <td>35</td>
+        <td>1087</td>
+        <td class="num-good">+6.5</td>
+        <td class="num-good">+3.5</td>
+        <td class="num-good"><b>+10.0</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">193</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5175999.png" onerror="this.style.visibility='hidden'">Ella Johnson</span></td>
+        <td class="pos">F</td>
+        <td>35</td>
+        <td>807</td>
+        <td class="num-good">+1.7</td>
+        <td class="num-good">+5.3</td>
+        <td class="num-good"><b>+7.0</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">542</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5240995.png" onerror="this.style.visibility='hidden'">Addison Harris</span></td>
+        <td class="pos">F</td>
+        <td>35</td>
+        <td>896</td>
+        <td class="num-good">+2.5</td>
+        <td class="num-good">+1.6</td>
+        <td class="num-good"><b>+4.1</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">758</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5176000.png" onerror="this.style.visibility='hidden'">Isobel Bunyan</span></td>
+        <td class="pos">G</td>
+        <td>35</td>
+        <td>896</td>
+        <td class="num-good">+0.1</td>
+        <td class="num-good">+3.0</td>
+        <td class="num-good"><b>+3.1</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">1051</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5315658.png" onerror="this.style.visibility='hidden'">Brianne Bailey</span></td>
+        <td class="pos">G</td>
+        <td>35</td>
+        <td>587</td>
+        <td class="num-good">+1.1</td>
+        <td class="num-good">+1.1</td>
+        <td class="num-good"><b>+2.2</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">1674</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5240994.png" onerror="this.style.visibility='hidden'">Teagan Erickson</span></td>
+        <td class="pos">F</td>
+        <td>33</td>
+        <td>520</td>
+        <td class="num-bad">-1.2</td>
+        <td class="num-good">+2.0</td>
+        <td class="num-good"><b>+0.8</b></td>
+      </tr>
+    
+      <tr class="low-sample">
+        <td class="muted">1979</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5242211.png" onerror="this.style.visibility='hidden'">Heidi Smith<span class="badge">low min</span></span></td>
+        <td class="pos">G</td>
+        <td>7</td>
+        <td>122</td>
+        <td class="num-good">+1.3</td>
+        <td class="num-bad">-1.0</td>
+        <td class="num-good"><b>+0.2</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">2374</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5315655.png" onerror="this.style.visibility='hidden'">Jamison Philip</span></td>
+        <td class="pos">G</td>
+        <td>35</td>
+        <td>860</td>
+        <td class="num-bad">-2.3</td>
+        <td class="num-good">+1.9</td>
+        <td class="num-bad"><b>-0.3</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">2600</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5315659.png" onerror="this.style.visibility='hidden'">Kadynce Couture</span></td>
+        <td class="pos">G</td>
+        <td>35</td>
+        <td>555</td>
+        <td class="num-bad">-0.0</td>
+        <td class="num-bad">-0.6</td>
+        <td class="num-bad"><b>-0.7</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">3625</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5315656.png" onerror="this.style.visibility='hidden'">Grace Hintz</span></td>
+        <td class="pos">G</td>
+        <td>25</td>
+        <td>213</td>
+        <td class="num-bad">-0.4</td>
+        <td class="num-bad">-2.1</td>
+        <td class="num-bad"><b>-2.5</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">3908</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5242215.png" onerror="this.style.visibility='hidden'">Courtney Smith</span></td>
+        <td class="pos">G</td>
+        <td>27</td>
+        <td>242</td>
+        <td class="num-bad">-3.8</td>
+        <td class="num-good">+0.6</td>
+        <td class="num-bad"><b>-3.2</b></td>
+      </tr>
+    
+      <tr >
+        <td class="muted">4291</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5109757.png" onerror="this.style.visibility='hidden'">Brooke Fatupaito</span></td>
+        <td class="pos">G</td>
+        <td>18</td>
+        <td>279</td>
+        <td class="num-bad">-2.7</td>
+        <td class="num-bad">-1.8</td>
+        <td class="num-bad"><b>-4.5</b></td>
+      </tr>
+    
+    </tbody>
+  </table>
+</div>
+
+
+<div class="panel">
+  <h2>Top 5-player lineups <span class="muted small">(min 50 possessions, by net rating)</span></h2>
+  <table>
+    <thead><tr><th class="l">Lineup</th><th>Poss</th><th>Min</th><th>Pts/100</th><th>Opp Pts/100</th><th>Net</th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <td class="l">Bailey &middot; Bunyan &middot; Chirrick &middot; Couture &middot; Harris</td>
+        <td>59</td>
+        <td>29</td>
+        <td>132.7</td>
+        <td>86.6</td>
+        <td class="num-good"><b>+46.0</b></td>
+      </tr>
+    
+      <tr>
+        <td class="l">Bailey &middot; Bunyan &middot; Chirrick &middot; Erickson &middot; Johnson</td>
+        <td>63</td>
+        <td>30</td>
+        <td>112.1</td>
+        <td>70.7</td>
+        <td class="num-good"><b>+41.3</b></td>
+      </tr>
+    
+      <tr>
+        <td class="l">Bailey &middot; Bunyan &middot; Chirrick &middot; Harris &middot; Johnson</td>
+        <td>105</td>
+        <td>56</td>
+        <td>113.8</td>
+        <td>81.4</td>
+        <td class="num-good"><b>+32.4</b></td>
+      </tr>
+    
+      <tr>
+        <td class="l">Bunyan &middot; Chirrick &middot; Harris &middot; Johnson &middot; Philip</td>
+        <td>757</td>
+        <td>415</td>
+        <td>101.2</td>
+        <td>69.8</td>
+        <td class="num-good"><b>+31.3</b></td>
+      </tr>
+    
+      <tr>
+        <td class="l">Bailey &middot; Bunyan &middot; Chirrick &middot; Couture &middot; Erickson</td>
+        <td>84</td>
+        <td>38</td>
+        <td>92.5</td>
+        <td>73.5</td>
+        <td class="num-good"><b>+19.0</b></td>
+      </tr>
+    
+    </tbody>
+  </table>
+</div>
+
+
+</main>
+<footer>RAPM = regularized adjusted plus-minus, points per 100 possessions vs average, adjusted for teammates and opponents.<br>
+Data: ESPN via wehoop &middot; season 2025–26</footer>
+
+</body>
+</html>

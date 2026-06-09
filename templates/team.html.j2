@@ -1,0 +1,62 @@
+{% extends "base.html.j2" %}
+{% block title %}{{ team.name }} &middot; WBB RAPM {{ season_label }}{% endblock %}
+{% block content %}
+<div class="panel">
+  <div class="pcell" style="gap:14px">
+    <img src="{{ team.logo or '' }}" style="width:54px;height:54px;border-radius:8px" onerror="this.style.visibility='hidden'">
+    <div>
+      <h2 style="margin:0">{{ team.name }} &mdash; {{ season_label }}</h2>
+      <span class="muted small">{{ team.record }} &middot; net margin {{ '%+.1f'|format(team.net_margin) }}/game</span>
+    </div>
+  </div>
+  <div class="statgrid" style="margin-top:16px">
+    <div class="stat"><div class="v {{ 'num-good' if team.team_rapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(team.team_rapm) }}</div>
+      <div class="k">Team RAPM (min-weighted)</div></div>
+    <div class="stat"><div class="v">#{{ team.rapm_rank }}</div><div class="k">of {{ team.n_teams }} D1 teams</div></div>
+    <div class="stat"><div class="v">{{ team.players|length }}</div><div class="k">Rated players</div></div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Roster by RAPM</h2>
+  <table>
+    <thead><tr><th>D1 rank</th><th class="l">Player</th><th>Pos</th><th>GP</th><th>Min</th>
+      <th>ORAPM</th><th>DRAPM</th><th>RAPM</th></tr></thead>
+    <tbody>
+    {% for p in team.players %}
+      <tr {% if p.low_sample %}class="low-sample"{% endif %}>
+        <td class="muted">{{ p.rank }}</td>
+        <td class="l"><span class="pcell"><img loading="lazy" src="{{ p.headshot or '' }}" onerror="this.style.visibility='hidden'">{{ p.name }}{% if p.low_sample %}<span class="badge">low min</span>{% endif %}</span></td>
+        <td class="pos">{{ p.position or '' }}</td>
+        <td>{{ p.games }}</td>
+        <td>{{ p.minutes|round|int }}</td>
+        <td class="{{ 'num-good' if p.orapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(p.orapm) }}</td>
+        <td class="{{ 'num-good' if p.drapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(p.drapm) }}</td>
+        <td class="{{ 'num-good' if p.rapm >= 0 else 'num-bad' }}"><b>{{ '%+.1f'|format(p.rapm) }}</b></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if team.lineups %}
+<div class="panel">
+  <h2>Top 5-player lineups <span class="muted small">(min {{ lineup_min_poss }} possessions, by net rating)</span></h2>
+  <table>
+    <thead><tr><th class="l">Lineup</th><th>Poss</th><th>Min</th><th>Pts/100</th><th>Opp Pts/100</th><th>Net</th></tr></thead>
+    <tbody>
+    {% for l in team.lineups %}
+      <tr>
+        <td class="l">{{ l.names|join(' &middot; ') }}</td>
+        <td>{{ l.poss|round|int }}</td>
+        <td>{{ l.minutes|round|int }}</td>
+        <td>{{ '%.1f'|format(l.ortg) }}</td>
+        <td>{{ '%.1f'|format(l.drtg) }}</td>
+        <td class="{{ 'num-good' if l.net >= 0 else 'num-bad' }}"><b>{{ '%+.1f'|format(l.net) }}</b></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
