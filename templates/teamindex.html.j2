@@ -3,6 +3,7 @@
 {% block content %}
 <div class="panel">
   <h2>D1 teams by minute-weighted RAPM &mdash; {{ season_label }}</h2>
+  {% if coverage_note %}<p class="small muted" style="margin-top:-4px">&#9888; {{ coverage_note }}</p>{% endif %}
   <table>
     <thead><tr><th>#</th><th class="l">Team</th><th>Record</th><th>Net margin</th><th>Team RAPM</th></tr></thead>
     <tbody>
@@ -10,7 +11,7 @@
       <tr>
         <td class="muted">{{ loop.index }}</td>
         <td class="l"><span class="tcell"><img loading="lazy" src="{{ t.logo or '' }}" onerror="this.style.visibility='hidden'">
-          <a href="teams/{{ t.team_id }}.html">{{ t.name }}</a></span></td>
+          <a href="teams/{{ season }}/{{ t.team_id }}.html">{{ t.name }}</a></span></td>
         <td>{{ t.record }}</td>
         <td class="{{ 'num-good' if t.net_margin >= 0 else 'num-bad' }}">{{ '%+.1f'|format(t.net_margin) }}</td>
         <td class="{{ 'num-good' if t.team_rapm >= 0 else 'num-bad' }}"><b>{{ '%+.2f'|format(t.team_rapm) }}</b></td>

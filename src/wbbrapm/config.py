@@ -25,6 +25,11 @@ FTA_POSSESSION_WEIGHT = 0.44
 # reconciliation error exceeds this many minutes.
 MINUTE_MAE_THRESHOLD = 1.5
 
+# Games with fewer substitution events than this cannot be reconstructed
+# (ESPN feeds before Feb 2025 have no subs at all) and are excluded outright,
+# whatever their minute MAE says.
+MIN_SUBS_PER_GAME = 10
+
 # Players under this many total minutes get a "low sample" flag on the site
 # (they stay in the model; ridge already shrinks them).
 LOW_MINUTES_FLAG = 200

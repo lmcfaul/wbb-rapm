@@ -25,8 +25,23 @@ open site/index.html
 ```
 
 Re-run any prior season with `make season YEAR=2025` etc. Every artifact is
-partitioned by season; the site's season selector lists whatever has been built
-(the site root always reflects the most recently built season's team pages).
+partitioned by season. Each page on the site has a season dropdown in the header
+(leaderboard, team index, every team page, Stanford, about), and clicking a player
+opens a modal with her season-by-season rating history (`site/data/history.js`).
+Root pages (`index.html`, ...) are aliases for the latest season; every season also
+has suffixed pages (`index-2025.html`, `teams/2025/<id>.html`, ...).
+
+### Season availability
+
+Lineup RAPM needs substitution events, and ESPN's WBB play-by-play only began
+recording them mid-2024-25 (from Feb 12, 2025):
+
+- **2026** (2025–26): full season — 5,943 of 6,011 games pass QA.
+- **2025** (2024–25): partial — 1,362 games from Feb 12 to Apr 6, 2025 (late season +
+  postseason). Pages carry a coverage warning.
+- **2024 and earlier**: no substitution data exists; the pipeline refuses to produce
+  ratings (games with <10 sub events are excluded outright, and a season with zero
+  usable games aborts with an explanation).
 
 ## Pipeline
 

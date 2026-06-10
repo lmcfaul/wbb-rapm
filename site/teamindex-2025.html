@@ -1,0 +1,3345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teams &middot; WBB RAPM 2024–25</title>
+<style>
+:root {
+  --bg: #0e1117; --panel: #161b25; --panel2: #1d2433; --text: #e6e9f0;
+  --muted: #8b93a7; --accent: #4ea1ff; --good: #3ddc84; --bad: #ff6b6b;
+  --border: #262e40;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+       background: var(--bg); color: var(--text); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+header { background: var(--panel); border-bottom: 1px solid var(--border);
+         padding: 14px 24px; display: flex; align-items: baseline; gap: 22px; flex-wrap: wrap; }
+header h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
+header h1 a { color: var(--text); }
+header nav a { color: var(--muted); margin-right: 14px; font-size: 14px; }
+header nav a.active, header nav a:hover { color: var(--text); }
+.season-pick { margin-left: auto; font-size: 12px; color: var(--muted);
+               display: flex; gap: 6px; align-items: center; }
+.season-pick select { background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+                      border-radius: 6px; padding: 5px 8px; font-size: 13px; }
+main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+         padding: 18px 20px; margin-bottom: 20px; }
+h2 { font-size: 16px; margin: 0 0 12px; color: var(--text); }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+.controls input[type=text], .controls select, .controls input[type=number] {
+  background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 7px 10px; font-size: 13px; }
+.controls label { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; cursor: pointer; user-select: none; position: sticky; top: 0;
+     background: var(--panel); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+th.sorted-desc::after { content: " \25BE"; color: var(--accent); }
+th.sorted-asc::after { content: " \25B4"; color: var(--accent); }
+td.l, th.l { text-align: left; }
+tr.player-row { cursor: pointer; }
+tr.player-row:hover { background: var(--panel2); }
+tr.low-sample td { opacity: .45; }
+.pcell { display: flex; align-items: center; gap: 9px; }
+.pcell img, .tcell img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; background: #222; }
+.tcell { display: flex; align-items: center; gap: 7px; }
+.tcell img { border-radius: 4px; width: 20px; height: 20px; }
+.pos { color: var(--muted); }
+.num-good { color: var(--good); } .num-bad { color: var(--bad); }
+.muted { color: var(--muted); } .small { font-size: 12px; }
+.badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--panel2);
+         color: var(--muted); border: 1px solid var(--border); margin-left: 6px; }
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+.stat { background: var(--panel2); border-radius: 8px; padding: 10px 12px; }
+.stat .v { font-size: 20px; font-weight: 700; } .stat .k { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+#modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 50; }
+#modal { display: none; position: fixed; z-index: 51; top: 8vh; left: 50%; transform: translateX(-50%);
+         width: min(560px, 94vw); background: var(--panel); border: 1px solid var(--border);
+         border-radius: 12px; padding: 22px; }
+#modal .close { position: absolute; top: 10px; right: 14px; cursor: pointer; color: var(--muted); font-size: 20px; }
+.bar { height: 8px; border-radius: 4px; background: var(--panel2); position: relative; margin: 4px 0 10px; }
+.bar .fill { height: 100%; border-radius: 4px; }
+footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px 0; }
+.dl { font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><a href="index.html">WBB RAPM</a> <span class="muted small">D1 women's basketball, adjusted player ratings</span></h1>
+  <nav>
+    <a href="index-2025.html" >Leaderboard</a>
+    <a href="teamindex-2025.html" class="active">Teams</a>
+    <a href="stanford-2025.html" >Stanford</a>
+    <a href="about-2025.html" >About / Validation</a>
+  </nav>
+  
+  <label class="season-pick">Season
+    <select onchange="location.href=this.value">
+      <option value="teamindex-2025.html" selected>2024–25</option><option value="teamindex-2026.html" >2025–26</option>
+    </select>
+  </label>
+  
+</header>
+<main>
+
+<div class="panel">
+  <h2>D1 teams by minute-weighted RAPM &mdash; 2024–25</h2>
+  <p class="small muted" style="margin-top:-4px">&#9888; Partial season: ESPN only recorded substitutions for 1362 of 5473 games (2025-02-12 to 2025-04-06), so these ratings cover late-season play only.</p>
+  <table>
+    <thead><tr><th>#</th><th class="l">Team</th><th>Record</th><th>Net margin</th><th>Team RAPM</th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <td class="muted">1</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/41.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/41.html">UConn Huskies</a></span></td>
+        <td>37–3</td>
+        <td class="num-good">+29.6</td>
+        <td class="num-good"><b>+8.47</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">2</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2579.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2579.html">South Carolina Gamecocks</a></span></td>
+        <td>35–4</td>
+        <td class="num-good">+21.1</td>
+        <td class="num-good"><b>+4.60</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">3</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2450.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2450.html">Norfolk State Spartans</a></span></td>
+        <td>25–5</td>
+        <td class="num-good">+15.4</td>
+        <td class="num-good"><b>+4.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">4</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/150.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/150.html">Duke Blue Devils</a></span></td>
+        <td>29–8</td>
+        <td class="num-good">+16.0</td>
+        <td class="num-good"><b>+3.94</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">5</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/87.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/87.html">Notre Dame Fighting Irish</a></span></td>
+        <td>28–6</td>
+        <td class="num-good">+22.5</td>
+        <td class="num-good"><b>+3.86</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">6</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2628.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2628.html">TCU Horned Frogs</a></span></td>
+        <td>34–4</td>
+        <td class="num-good">+19.1</td>
+        <td class="num-good"><b>+3.60</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">7</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/201.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/201.html">Oklahoma Sooners</a></span></td>
+        <td>27–8</td>
+        <td class="num-good">+15.8</td>
+        <td class="num-good"><b>+3.51</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">8</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/30.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/30.html">USC Trojans</a></span></td>
+        <td>31–4</td>
+        <td class="num-good">+21.3</td>
+        <td class="num-good"><b>+3.36</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">9</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/26.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/26.html">UCLA Bruins</a></span></td>
+        <td>34–3</td>
+        <td class="num-good">+19.3</td>
+        <td class="num-good"><b>+3.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">10</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/251.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/251.html">Texas Longhorns</a></span></td>
+        <td>35–4</td>
+        <td class="num-good">+21.7</td>
+        <td class="num-good"><b>+3.28</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">11</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/232.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/232.html">Charleston Cougars</a></span></td>
+        <td>19–5</td>
+        <td class="num-good">+20.0</td>
+        <td class="num-good"><b>+3.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">12</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2253.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2253.html">Grand Canyon Lopes</a></span></td>
+        <td>28–3</td>
+        <td class="num-good">+18.2</td>
+        <td class="num-good"><b>+3.14</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">13</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2739.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2739.html">Green Bay Phoenix</a></span></td>
+        <td>28–6</td>
+        <td class="num-good">+11.8</td>
+        <td class="num-good"><b>+3.11</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">14</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/261.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/261.html">Vermont Catamounts</a></span></td>
+        <td>20–13</td>
+        <td class="num-good">+8.1</td>
+        <td class="num-good"><b>+2.99</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">15</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/526.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/526.html">Florida Gulf Coast Eagles</a></span></td>
+        <td>28–3</td>
+        <td class="num-good">+18.7</td>
+        <td class="num-good"><b>+2.98</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">16</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/161.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/161.html">Fairleigh Dickinson Knights</a></span></td>
+        <td>27–4</td>
+        <td class="num-good">+11.1</td>
+        <td class="num-good"><b>+2.96</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">17</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2320.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2320.html">Lamar Cardinals</a></span></td>
+        <td>22–7</td>
+        <td class="num-good">+12.1</td>
+        <td class="num-good"><b>+2.95</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">18</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/99.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/99.html">LSU Tigers</a></span></td>
+        <td>31–6</td>
+        <td class="num-good">+19.1</td>
+        <td class="num-good"><b>+2.85</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">19</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2571.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2571.html">South Dakota State Jackrabbits</a></span></td>
+        <td>30–4</td>
+        <td class="num-good">+13.3</td>
+        <td class="num-good"><b>+2.84</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">20</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2870.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2870.html">Purdue Fort Wayne Mastodons</a></span></td>
+        <td>25–7</td>
+        <td class="num-good">+17.3</td>
+        <td class="num-good"><b>+2.79</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">21</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/239.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/239.html">Baylor Bears</a></span></td>
+        <td>28–8</td>
+        <td class="num-good">+17.2</td>
+        <td class="num-good"><b>+2.77</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">22</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2306.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2306.html">Kansas State Wildcats</a></span></td>
+        <td>28–8</td>
+        <td class="num-good">+20.1</td>
+        <td class="num-good"><b>+2.74</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">23</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/98.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/98.html">Western Kentucky Lady Toppers</a></span></td>
+        <td>22–8</td>
+        <td class="num-good">+9.9</td>
+        <td class="num-good"><b>+2.63</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">24</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/257.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/257.html">Richmond Spiders</a></span></td>
+        <td>28–7</td>
+        <td class="num-good">+14.5</td>
+        <td class="num-good"><b>+2.63</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">25</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/152.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/152.html">NC State Wolfpack</a></span></td>
+        <td>28–7</td>
+        <td class="num-good">+11.8</td>
+        <td class="num-good"><b>+2.61</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">26</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/325.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/325.html">Cleveland State Vikings</a></span></td>
+        <td>25–8</td>
+        <td class="num-good">+14.6</td>
+        <td class="num-good"><b>+2.58</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">27</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2623.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2623.html">Missouri State Lady Bears</a></span></td>
+        <td>23–8</td>
+        <td class="num-good">+10.6</td>
+        <td class="num-good"><b>+2.53</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">28</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2217.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2217.html">Fairfield Stags</a></span></td>
+        <td>25–5</td>
+        <td class="num-good">+17.6</td>
+        <td class="num-good"><b>+2.53</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">29</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/145.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/145.html">Ole Miss Rebels</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+16.2</td>
+        <td class="num-good"><b>+2.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">30</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/277.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/277.html">West Virginia Mountaineers</a></span></td>
+        <td>25–8</td>
+        <td class="num-good">+19.4</td>
+        <td class="num-good"><b>+2.31</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">31</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/256.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/256.html">James Madison Dukes</a></span></td>
+        <td>29–5</td>
+        <td class="num-good">+10.6</td>
+        <td class="num-good"><b>+2.28</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">32</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2514.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2514.html">Quinnipiac Bobcats</a></span></td>
+        <td>26–4</td>
+        <td class="num-good">+10.3</td>
+        <td class="num-good"><b>+2.27</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">33</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2294.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2294.html">Iowa Hawkeyes</a></span></td>
+        <td>21–11</td>
+        <td class="num-good">+8.5</td>
+        <td class="num-good"><b>+2.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">34</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2439.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2439.html">UNLV Lady Rebels</a></span></td>
+        <td>26–7</td>
+        <td class="num-good">+13.4</td>
+        <td class="num-good"><b>+2.17</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">35</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2181.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2181.html">Drake Bulldogs</a></span></td>
+        <td>19–10</td>
+        <td class="num-good">+9.3</td>
+        <td class="num-good"><b>+2.16</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">36</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/333.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/333.html">Alabama Crimson Tide</a></span></td>
+        <td>24–9</td>
+        <td class="num-good">+15.0</td>
+        <td class="num-good"><b>+2.10</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">37</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2000.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2000.html">Abilene Christian Wildcats</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+10.9</td>
+        <td class="num-good"><b>+2.06</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">38</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2393.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2393.html">Middle Tennessee Blue Raiders</a></span></td>
+        <td>24–8</td>
+        <td class="num-good">+12.0</td>
+        <td class="num-good"><b>+2.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">39</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/113.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/113.html">Massachusetts Minutewomen</a></span></td>
+        <td>17–15</td>
+        <td class="num-good">+5.7</td>
+        <td class="num-good"><b>+2.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">40</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/93.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/93.html">Murray State Racers</a></span></td>
+        <td>21–7</td>
+        <td class="num-good">+13.4</td>
+        <td class="num-good"><b>+2.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">41</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2582.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2582.html">Southern Jaguars</a></span></td>
+        <td>18–15</td>
+        <td class="num-bad">-0.1</td>
+        <td class="num-good"><b>+2.03</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">42</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/189.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/189.html">Bowling Green Falcons</a></span></td>
+        <td>18–12</td>
+        <td class="num-good">+3.8</td>
+        <td class="num-good"><b>+2.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">43</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2633_ncw.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2633.html">Tennessee Lady Volunteers</a></span></td>
+        <td>24–10</td>
+        <td class="num-good">+16.5</td>
+        <td class="num-good"><b>+2.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">44</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/218.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/218.html">Temple Owls</a></span></td>
+        <td>17–10</td>
+        <td class="num-good">+4.1</td>
+        <td class="num-good"><b>+1.97</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">45</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2272.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2272.html">High Point Panthers</a></span></td>
+        <td>21–12</td>
+        <td class="num-good">+8.6</td>
+        <td class="num-good"><b>+1.96</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">46</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/47.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/47.html">Howard Bison</a></span></td>
+        <td>18–11</td>
+        <td class="num-good">+3.0</td>
+        <td class="num-good"><b>+1.95</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">47</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/147.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/147.html">Montana State Bobcats</a></span></td>
+        <td>26–4</td>
+        <td class="num-good">+16.2</td>
+        <td class="num-good"><b>+1.87</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">48</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/84.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/84.html">Indiana Hoosiers</a></span></td>
+        <td>20–13</td>
+        <td class="num-good">+5.8</td>
+        <td class="num-good"><b>+1.87</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">49</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/249.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/249.html">North Texas Mean Green</a></span></td>
+        <td>24–6</td>
+        <td class="num-good">+8.2</td>
+        <td class="num-good"><b>+1.84</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">50</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/156.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/156.html">Creighton Bluejays</a></span></td>
+        <td>25–7</td>
+        <td class="num-good">+8.1</td>
+        <td class="num-good"><b>+1.84</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">51</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2335.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2335.html">Liberty Flames</a></span></td>
+        <td>23–7</td>
+        <td class="num-good">+11.1</td>
+        <td class="num-good"><b>+1.80</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">52</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2501.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2501.html">Portland Pilots</a></span></td>
+        <td>30–3</td>
+        <td class="num-good">+13.4</td>
+        <td class="num-good"><b>+1.79</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">53</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2815.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2815.html">Lindenwood Lions</a></span></td>
+        <td>23–8</td>
+        <td class="num-good">+5.1</td>
+        <td class="num-good"><b>+1.75</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">54</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/96.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/96.html">Kentucky Wildcats</a></span></td>
+        <td>23–8</td>
+        <td class="num-good">+12.5</td>
+        <td class="num-good"><b>+1.74</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">55</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/264.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/264.html">Washington Huskies</a></span></td>
+        <td>18–14</td>
+        <td class="num-good">+7.7</td>
+        <td class="num-good"><b>+1.73</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">56</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2464.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2464.html">Northern Arizona Lumberjacks</a></span></td>
+        <td>25–7</td>
+        <td class="num-good">+7.0</td>
+        <td class="num-good"><b>+1.73</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">57</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/88.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/88.html">Southern Indiana Screaming Eagles</a></span></td>
+        <td>21–12</td>
+        <td class="num-good">+7.9</td>
+        <td class="num-good"><b>+1.72</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">58</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/97.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/97.html">Louisville Cardinals</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+4.3</td>
+        <td class="num-good"><b>+1.70</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">59</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/302.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/302.html">UC Davis Aggies</a></span></td>
+        <td>19–11</td>
+        <td class="num-good">+11.5</td>
+        <td class="num-good"><b>+1.69</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">60</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/171.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/171.html">Columbia Lions</a></span></td>
+        <td>19–6</td>
+        <td class="num-good">+12.6</td>
+        <td class="num-good"><b>+1.67</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">61</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2641.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2641.html">Texas Tech Lady Raiders</a></span></td>
+        <td>19–16</td>
+        <td class="num-good">+0.9</td>
+        <td class="num-good"><b>+1.66</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">62</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/108.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/108.html">Harvard Crimson</a></span></td>
+        <td>21–3</td>
+        <td class="num-good">+18.3</td>
+        <td class="num-good"><b>+1.61</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">63</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2751.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2751.html">Wyoming Cowgirls</a></span></td>
+        <td>21–11</td>
+        <td class="num-good">+6.3</td>
+        <td class="num-good"><b>+1.60</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">64</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2250.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2250.html">Gonzaga Bulldogs</a></span></td>
+        <td>24–9</td>
+        <td class="num-good">+5.6</td>
+        <td class="num-good"><b>+1.58</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">65</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2057.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2057.html">Belmont Bruins</a></span></td>
+        <td>21–11</td>
+        <td class="num-good">+6.7</td>
+        <td class="num-good"><b>+1.57</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">66</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2010.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2010.html">Alabama A&M Bulldogs</a></span></td>
+        <td>21–10</td>
+        <td class="num-good">+3.2</td>
+        <td class="num-good"><b>+1.57</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">67</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2166.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2166.html">Davidson Wildcats</a></span></td>
+        <td>19–14</td>
+        <td class="num-good">+5.0</td>
+        <td class="num-good"><b>+1.56</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">68</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/304.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/304.html">Idaho State Bengals</a></span></td>
+        <td>14–14</td>
+        <td class="num-bad">-1.4</td>
+        <td class="num-good"><b>+1.54</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">69</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/399.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/399.html">UAlbany Great Danes</a></span></td>
+        <td>26–6</td>
+        <td class="num-good">+10.0</td>
+        <td class="num-good"><b>+1.53</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">70</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/25.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/25.html">California Golden Bears</a></span></td>
+        <td>24–9</td>
+        <td class="num-good">+8.2</td>
+        <td class="num-good"><b>+1.53</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">71</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/163.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/163.html">Princeton Tigers</a></span></td>
+        <td>17–7</td>
+        <td class="num-good">+7.8</td>
+        <td class="num-good"><b>+1.51</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">72</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2635.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2635.html">Tennessee Tech Golden Eagles</a></span></td>
+        <td>26–6</td>
+        <td class="num-good">+7.8</td>
+        <td class="num-good"><b>+1.51</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">73</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/153.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/153.html">North Carolina Tar Heels</a></span></td>
+        <td>29–8</td>
+        <td class="num-good">+12.4</td>
+        <td class="num-good"><b>+1.47</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">74</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2084.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2084.html">Buffalo Bulls</a></span></td>
+        <td>26–6</td>
+        <td class="num-good">+14.1</td>
+        <td class="num-good"><b>+1.46</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">75</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2379.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2379.html">Maryland Eastern Shore Hawks</a></span></td>
+        <td>12–15</td>
+        <td class="num-good">+1.0</td>
+        <td class="num-good"><b>+1.45</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">76</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/198.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/198.html">Oral Roberts Golden Eagles</a></span></td>
+        <td>22–9</td>
+        <td class="num-good">+8.1</td>
+        <td class="num-good"><b>+1.45</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">77</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2653.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2653.html">Troy Trojans</a></span></td>
+        <td>22–12</td>
+        <td class="num-good">+7.5</td>
+        <td class="num-good"><b>+1.44</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">78</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/3084.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/3084.html">Utah Valley Wolverines</a></span></td>
+        <td>17–12</td>
+        <td class="num-good">+4.4</td>
+        <td class="num-good"><b>+1.40</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">79</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2755.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2755.html">Grambling Lady Tigers</a></span></td>
+        <td>14–14</td>
+        <td class="num-good">+1.0</td>
+        <td class="num-good"><b>+1.40</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">80</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/130.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/130.html">Michigan Wolverines</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+11.2</td>
+        <td class="num-good"><b>+1.38</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">81</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/28.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/28.html">UC San Diego Tritons</a></span></td>
+        <td>17–16</td>
+        <td class="num-good">+5.6</td>
+        <td class="num-good"><b>+1.38</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">82</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/158.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/158.html">Nebraska Cornhuskers</a></span></td>
+        <td>21–12</td>
+        <td class="num-good">+7.3</td>
+        <td class="num-good"><b>+1.37</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">83</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/194.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/194.html">Ohio State Buckeyes</a></span></td>
+        <td>26–7</td>
+        <td class="num-good">+14.6</td>
+        <td class="num-good"><b>+1.33</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">84</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2539.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2539.html">San Francisco Dons</a></span></td>
+        <td>15–16</td>
+        <td class="num-good">+2.3</td>
+        <td class="num-good"><b>+1.31</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">85</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/236.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/236.html">Chattanooga Mocs</a></span></td>
+        <td>16–15</td>
+        <td class="num-good">+3.4</td>
+        <td class="num-good"><b>+1.29</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">86</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/269.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/269.html">Marquette Golden Eagles</a></span></td>
+        <td>21–11</td>
+        <td class="num-good">+7.9</td>
+        <td class="num-good"><b>+1.28</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">87</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/197.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/197.html">Oklahoma State Cowgirls</a></span></td>
+        <td>24–7</td>
+        <td class="num-good">+15.6</td>
+        <td class="num-good"><b>+1.27</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">88</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2448.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2448.html">North Carolina A&T Aggies</a></span></td>
+        <td>11–11</td>
+        <td class="num-good">+3.9</td>
+        <td class="num-good"><b>+1.24</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">89</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/300.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/300.html">UC Irvine Anteaters</a></span></td>
+        <td>20–9</td>
+        <td class="num-good">+5.9</td>
+        <td class="num-good"><b>+1.21</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">90</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/349.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/349.html">Army Black Knights</a></span></td>
+        <td>23–6</td>
+        <td class="num-good">+7.2</td>
+        <td class="num-good"><b>+1.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">91</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/242.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/242.html">Rice Owls</a></span></td>
+        <td>13–14</td>
+        <td class="num-good">+2.0</td>
+        <td class="num-good"><b>+1.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">92</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2097.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2097.html">Campbell Fighting Camels</a></span></td>
+        <td>17–10</td>
+        <td class="num-good">+5.4</td>
+        <td class="num-good"><b>+1.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">93</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2460.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2460.html">Northern Iowa Panthers</a></span></td>
+        <td>15–15</td>
+        <td class="num-good">+5.2</td>
+        <td class="num-good"><b>+1.18</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">94</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2344.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2344.html">Longwood Lancers</a></span></td>
+        <td>22–12</td>
+        <td class="num-good">+9.6</td>
+        <td class="num-good"><b>+1.18</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">95</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2142.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2142.html">Colgate Raiders</a></span></td>
+        <td>23–10</td>
+        <td class="num-good">+10.3</td>
+        <td class="num-good"><b>+1.17</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">96</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/66.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/66.html">Iowa State Cyclones</a></span></td>
+        <td>22–12</td>
+        <td class="num-good">+9.1</td>
+        <td class="num-good"><b>+1.15</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">97</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/253.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/253.html">Southern Utah Thunderbirds</a></span></td>
+        <td>9–20</td>
+        <td class="num-bad">-6.3</td>
+        <td class="num-good"><b>+1.14</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">98</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/258.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/258.html">Virginia Cavaliers</a></span></td>
+        <td>16–15</td>
+        <td class="num-good">+1.9</td>
+        <td class="num-good"><b>+1.12</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">99</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/120.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/120.html">Maryland Terrapins</a></span></td>
+        <td>25–8</td>
+        <td class="num-good">+10.0</td>
+        <td class="num-good"><b>+1.12</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">100</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2244.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2244.html">George Mason Patriots</a></span></td>
+        <td>27–6</td>
+        <td class="num-good">+15.4</td>
+        <td class="num-good"><b>+1.12</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">101</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/204.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/204.html">Oregon State Beavers</a></span></td>
+        <td>18–16</td>
+        <td class="num-good">+0.5</td>
+        <td class="num-good"><b>+1.06</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">102</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/62.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/62.html">Hawai'i Rainbow Wahine</a></span></td>
+        <td>22–9</td>
+        <td class="num-good">+6.4</td>
+        <td class="num-good"><b>+1.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">103</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/344.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/344.html">Mississippi State Bulldogs</a></span></td>
+        <td>22–12</td>
+        <td class="num-good">+10.9</td>
+        <td class="num-good"><b>+1.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">104</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2309.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2309.html">Kent State Golden Flashes</a></span></td>
+        <td>20–11</td>
+        <td class="num-good">+10.7</td>
+        <td class="num-good"><b>+1.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">105</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/265.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/265.html">Washington State Cougars</a></span></td>
+        <td>21–12</td>
+        <td class="num-good">+3.0</td>
+        <td class="num-good"><b>+1.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">106</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2083.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2083.html">Bucknell Bison</a></span></td>
+        <td>17–13</td>
+        <td class="num-good">+2.5</td>
+        <td class="num-good"><b>+1.03</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">107</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/36.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/36.html">Colorado State Rams</a></span></td>
+        <td>19–10</td>
+        <td class="num-good">+7.7</td>
+        <td class="num-good"><b>+1.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">108</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2649.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2649.html">Toledo Rockets</a></span></td>
+        <td>22–8</td>
+        <td class="num-good">+5.6</td>
+        <td class="num-good"><b>+1.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">109</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/151.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/151.html">East Carolina Pirates</a></span></td>
+        <td>16–14</td>
+        <td class="num-good">+1.1</td>
+        <td class="num-good"><b>+0.98</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">110</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/116.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/116.html">Mount St. Mary's Mountaineers</a></span></td>
+        <td>14–15</td>
+        <td class="num-good">+1.0</td>
+        <td class="num-good"><b>+0.91</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">111</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2050.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2050.html">Ball State Cardinals</a></span></td>
+        <td>24–8</td>
+        <td class="num-good">+11.5</td>
+        <td class="num-good"><b>+0.91</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">112</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2287.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2287.html">Illinois State Redbirds</a></span></td>
+        <td>19–10</td>
+        <td class="num-good">+6.6</td>
+        <td class="num-good"><b>+0.90</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">113</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2540.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2540.html">UC Santa Barbara Gauchos</a></span></td>
+        <td>17–12</td>
+        <td class="num-good">+3.3</td>
+        <td class="num-good"><b>+0.89</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">114</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2275.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2275.html">Hofstra Pride</a></span></td>
+        <td>12–11</td>
+        <td class="num-bad">-3.6</td>
+        <td class="num-good"><b>+0.89</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">115</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2617.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2617.html">Stephen F. Austin Ladyjacks</a></span></td>
+        <td>26–6</td>
+        <td class="num-good">+14.8</td>
+        <td class="num-good"><b>+0.88</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">116</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2599.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2599.html">St. John's Red Storm</a></span></td>
+        <td>16–15</td>
+        <td class="num-good">+3.9</td>
+        <td class="num-good"><b>+0.88</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">117</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/238.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/238.html">Vanderbilt Commodores</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+14.2</td>
+        <td class="num-good"><b>+0.87</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">118</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2603.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2603.html">Saint Joseph's Hawks</a></span></td>
+        <td>23–10</td>
+        <td class="num-good">+10.8</td>
+        <td class="num-good"><b>+0.87</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">119</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2198.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2198.html">Eastern Kentucky Colonels</a></span></td>
+        <td>21–11</td>
+        <td class="num-good">+7.3</td>
+        <td class="num-good"><b>+0.85</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">120</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2523.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2523.html">Robert Morris Colonials</a></span></td>
+        <td>14–15</td>
+        <td class="num-bad">-1.9</td>
+        <td class="num-good"><b>+0.85</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">121</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2545.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2545.html">SE Louisiana Lady Lions</a></span></td>
+        <td>25–5</td>
+        <td class="num-good">+12.3</td>
+        <td class="num-good"><b>+0.83</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">122</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2430.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2430.html">UNC Greensboro Spartans</a></span></td>
+        <td>23–7</td>
+        <td class="num-good">+8.2</td>
+        <td class="num-good"><b>+0.82</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">123</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2016.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2016.html">Alcorn State Lady Braves</a></span></td>
+        <td>12–17</td>
+        <td class="num-bad">-6.1</td>
+        <td class="num-good"><b>+0.79</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">124</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2329.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2329.html">Lehigh Mountain Hawks</a></span></td>
+        <td>25–7</td>
+        <td class="num-good">+9.7</td>
+        <td class="num-good"><b>+0.78</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">125</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/254.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/254.html">Utah Utes</a></span></td>
+        <td>20–9</td>
+        <td class="num-good">+12.8</td>
+        <td class="num-good"><b>+0.78</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">126</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/52.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/52.html">Florida State Seminoles</a></span></td>
+        <td>22–9</td>
+        <td class="num-good">+13.6</td>
+        <td class="num-good"><b>+0.75</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">127</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/27.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/27.html">UC Riverside Highlanders</a></span></td>
+        <td>16–13</td>
+        <td class="num-good">+1.2</td>
+        <td class="num-good"><b>+0.71</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">128</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2483.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2483.html">Oregon Ducks</a></span></td>
+        <td>18–12</td>
+        <td class="num-good">+4.0</td>
+        <td class="num-good"><b>+0.71</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">129</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2184.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2184.html">Duquesne Dukes</a></span></td>
+        <td>21–13</td>
+        <td class="num-good">+6.5</td>
+        <td class="num-good"><b>+0.71</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">130</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/127.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/127.html">Michigan State Spartans</a></span></td>
+        <td>21–10</td>
+        <td class="num-good">+12.9</td>
+        <td class="num-good"><b>+0.69</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">131</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/295.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/295.html">Old Dominion Monarchs</a></span></td>
+        <td>17–14</td>
+        <td class="num-good">+2.2</td>
+        <td class="num-good"><b>+0.69</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">132</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2561.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2561.html">Siena Saints</a></span></td>
+        <td>17–12</td>
+        <td class="num-bad">-0.7</td>
+        <td class="num-good"><b>+0.69</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">133</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2627.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2627.html">Tarleton State Texans</a></span></td>
+        <td>19–13</td>
+        <td class="num-good">+5.5</td>
+        <td class="num-good"><b>+0.68</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">134</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2130.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2130.html">Chicago State Cougars</a></span></td>
+        <td>7–24</td>
+        <td class="num-bad">-14.6</td>
+        <td class="num-good"><b>+0.67</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">135</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/222.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/222.html">Villanova Wildcats</a></span></td>
+        <td>20–15</td>
+        <td class="num-bad">-1.0</td>
+        <td class="num-good"><b>+0.66</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">136</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/227.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/227.html">Rhode Island Rams</a></span></td>
+        <td>17–16</td>
+        <td class="num-good">+5.0</td>
+        <td class="num-good"><b>+0.65</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">137</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/38.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/38.html">Colorado Buffaloes</a></span></td>
+        <td>21–13</td>
+        <td class="num-good">+4.0</td>
+        <td class="num-good"><b>+0.65</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">138</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/166.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/166.html">New Mexico State Aggies</a></span></td>
+        <td>18–15</td>
+        <td class="num-good">+1.5</td>
+        <td class="num-good"><b>+0.65</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">139</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2737.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2737.html">Winthrop Eagles</a></span></td>
+        <td>16–15</td>
+        <td class="num-bad">-0.5</td>
+        <td class="num-good"><b>+0.61</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">140</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/276.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/276.html">Marshall Thundering Herd</a></span></td>
+        <td>13–19</td>
+        <td class="num-bad">-0.8</td>
+        <td class="num-good"><b>+0.60</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">141</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/228.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/228.html">Clemson Tigers</a></span></td>
+        <td>13–17</td>
+        <td class="num-good">+0.4</td>
+        <td class="num-good"><b>+0.58</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">142</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2154.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2154.html">Coppin State Eagles</a></span></td>
+        <td>17–12</td>
+        <td class="num-bad">-0.8</td>
+        <td class="num-good"><b>+0.58</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">143</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2636.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2636.html">UTSA Roadrunners</a></span></td>
+        <td>23–5</td>
+        <td class="num-good">+9.7</td>
+        <td class="num-good"><b>+0.58</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">144</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/324.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/324.html">Coastal Carolina Chanticleers</a></span></td>
+        <td>22–9</td>
+        <td class="num-good">+8.7</td>
+        <td class="num-good"><b>+0.57</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">145</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/356.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/356.html">Illinois Fighting Illini</a></span></td>
+        <td>22–9</td>
+        <td class="num-good">+9.2</td>
+        <td class="num-good"><b>+0.57</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">146</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2670.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2670.html">VCU Rams</a></span></td>
+        <td>11–19</td>
+        <td class="num-good">+1.2</td>
+        <td class="num-good"><b>+0.55</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">147</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2550.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2550.html">Seton Hall Pirates</a></span></td>
+        <td>23–10</td>
+        <td class="num-good">+3.4</td>
+        <td class="num-good"><b>+0.52</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">148</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2168.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2168.html">Dayton Flyers</a></span></td>
+        <td>18–13</td>
+        <td class="num-good">+1.4</td>
+        <td class="num-good"><b>+0.52</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">149</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2127.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2127.html">Charleston Southern Buccaneers</a></span></td>
+        <td>14–15</td>
+        <td class="num-bad">-7.9</td>
+        <td class="num-good"><b>+0.50</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">150</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2197.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2197.html">Eastern Illinois Panthers</a></span></td>
+        <td>17–12</td>
+        <td class="num-good">+1.6</td>
+        <td class="num-good"><b>+0.47</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">151</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2117.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2117.html">Central Michigan Chippewas</a></span></td>
+        <td>14–16</td>
+        <td class="num-bad">-2.2</td>
+        <td class="num-good"><b>+0.45</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">152</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/107.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/107.html">Holy Cross Crusaders</a></span></td>
+        <td>19–11</td>
+        <td class="num-good">+4.1</td>
+        <td class="num-good"><b>+0.44</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">153</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/250.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/250.html">UT Arlington Mavericks</a></span></td>
+        <td>16–13</td>
+        <td class="num-good">+4.7</td>
+        <td class="num-good"><b>+0.42</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">154</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/48.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/48.html">Delaware Blue Hens</a></span></td>
+        <td>8–13</td>
+        <td class="num-bad">-0.5</td>
+        <td class="num-good"><b>+0.42</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">155</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/135.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/135.html">Minnesota Golden Gophers</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+12.3</td>
+        <td class="num-good"><b>+0.41</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">156</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/193.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/193.html">Miami (OH) RedHawks</a></span></td>
+        <td>19–11</td>
+        <td class="num-good">+7.8</td>
+        <td class="num-good"><b>+0.41</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">157</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/284.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/284.html">Stonehill Skyhawks</a></span></td>
+        <td>16–15</td>
+        <td class="num-bad">-2.8</td>
+        <td class="num-good"><b>+0.40</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">158</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2466.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2466.html">Northwestern State Lady Demons</a></span></td>
+        <td>16–15</td>
+        <td class="num-good">+2.8</td>
+        <td class="num-good"><b>+0.38</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">159</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/21.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/21.html">San Diego State Aztecs</a></span></td>
+        <td>21–10</td>
+        <td class="num-good">+6.8</td>
+        <td class="num-good"><b>+0.36</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">160</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/288.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/288.html">Lipscomb Bisons</a></span></td>
+        <td>18–11</td>
+        <td class="num-good">+5.2</td>
+        <td class="num-good"><b>+0.36</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">161</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2803.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2803.html">Bryant Bulldogs</a></span></td>
+        <td>17–15</td>
+        <td class="num-bad">-1.2</td>
+        <td class="num-good"><b>+0.32</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">162</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/357.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/357.html">Texas A&M-Corpus Christi Islanders</a></span></td>
+        <td>15–17</td>
+        <td class="num-good">+2.8</td>
+        <td class="num-good"><b>+0.32</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">163</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/292.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/292.html">UT Rio Grande Valley Vaqueros</a></span></td>
+        <td>16–15</td>
+        <td class="num-good">+0.1</td>
+        <td class="num-good"><b>+0.32</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">164</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/70.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/70.html">Idaho Vandals</a></span></td>
+        <td>18–10</td>
+        <td class="num-good">+7.0</td>
+        <td class="num-good"><b>+0.31</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">165</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/290.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/290.html">Georgia Southern Eagles</a></span></td>
+        <td>13–18</td>
+        <td class="num-bad">-0.8</td>
+        <td class="num-good"><b>+0.29</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">166</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/225.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/225.html">Brown Bears</a></span></td>
+        <td>11–13</td>
+        <td class="num-bad">-1.6</td>
+        <td class="num-good"><b>+0.29</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">167</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2535.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2535.html">Samford Bulldogs</a></span></td>
+        <td>12–19</td>
+        <td class="num-bad">-3.9</td>
+        <td class="num-good"><b>+0.28</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">168</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2110.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2110.html">Central Arkansas Sugar Bears</a></span></td>
+        <td>22–9</td>
+        <td class="num-good">+6.8</td>
+        <td class="num-good"><b>+0.26</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">169</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2710.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2710.html">Western Illinois Leathernecks</a></span></td>
+        <td>16–17</td>
+        <td class="num-good">+2.7</td>
+        <td class="num-good"><b>+0.26</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">170</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/85.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/85.html">IU Indianapolis Jaguars</a></span></td>
+        <td>9–20</td>
+        <td class="num-bad">-7.4</td>
+        <td class="num-good"><b>+0.26</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">171</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/309.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/309.html">Louisiana Ragin' Cajuns</a></span></td>
+        <td>13–15</td>
+        <td class="num-good">+1.2</td>
+        <td class="num-good"><b>+0.25</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">172</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/139.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/139.html">Saint Louis Billikens</a></span></td>
+        <td>15–19</td>
+        <td class="num-bad">-6.3</td>
+        <td class="num-good"><b>+0.22</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">173</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2405.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2405.html">Monmouth Hawks</a></span></td>
+        <td>13–10</td>
+        <td class="num-bad">-0.1</td>
+        <td class="num-good"><b>+0.21</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">174</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2529.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2529.html">Sacred Heart Pioneers</a></span></td>
+        <td>9–20</td>
+        <td class="num-bad">-5.3</td>
+        <td class="num-good"><b>+0.21</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">175</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2612.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2612.html">Saint Peter's Peacocks</a></span></td>
+        <td>11–18</td>
+        <td class="num-bad">-5.6</td>
+        <td class="num-good"><b>+0.21</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">176</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/279.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/279.html">Pacific Tigers</a></span></td>
+        <td>15–19</td>
+        <td class="num-bad">-1.0</td>
+        <td class="num-good"><b>+0.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">177</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/91.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/91.html">Bellarmine Knights</a></span></td>
+        <td>17–15</td>
+        <td class="num-good">+0.4</td>
+        <td class="num-good"><b>+0.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">178</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/57.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/57.html">Florida Gators</a></span></td>
+        <td>18–18</td>
+        <td class="num-good">+3.3</td>
+        <td class="num-good"><b>+0.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">179</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2771.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2771.html">Merrimack Warriors</a></span></td>
+        <td>12–16</td>
+        <td class="num-bad">-3.9</td>
+        <td class="num-good"><b>+0.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">180</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/45.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/45.html">George Washington Revolutionaries</a></span></td>
+        <td>11–18</td>
+        <td class="num-bad">-5.3</td>
+        <td class="num-good"><b>+0.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">181</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/299.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/299.html">Long Beach State Beach</a></span></td>
+        <td>16–13</td>
+        <td class="num-bad">-0.1</td>
+        <td class="num-good"><b>+0.18</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">182</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2413.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2413.html">Morehead State Eagles</a></span></td>
+        <td>10–18</td>
+        <td class="num-bad">-4.3</td>
+        <td class="num-good"><b>+0.18</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">183</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2428.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2428.html">North Carolina Central Eagles</a></span></td>
+        <td>9–18</td>
+        <td class="num-bad">-17.4</td>
+        <td class="num-good"><b>+0.17</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">184</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/58.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/58.html">South Florida Bulls</a></span></td>
+        <td>21–11</td>
+        <td class="num-good">+4.1</td>
+        <td class="num-good"><b>+0.16</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">185</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2426.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2426.html">Navy Midshipmen</a></span></td>
+        <td>18–12</td>
+        <td class="num-good">+3.1</td>
+        <td class="num-good"><b>+0.16</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">186</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/50.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/50.html">Florida A&M Rattlers</a></span></td>
+        <td>9–19</td>
+        <td class="num-bad">-0.4</td>
+        <td class="num-good"><b>+0.15</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">187</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/104.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/104.html">Boston University Terriers</a></span></td>
+        <td>12–19</td>
+        <td class="num-bad">-6.6</td>
+        <td class="num-good"><b>+0.14</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">188</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/202.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/202.html">Tulsa Golden Hurricane</a></span></td>
+        <td>15–15</td>
+        <td class="num-good">+1.7</td>
+        <td class="num-good"><b>+0.13</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">189</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2717.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2717.html">Western Carolina Catamounts</a></span></td>
+        <td>13–17</td>
+        <td class="num-good">+1.6</td>
+        <td class="num-good"><b>+0.12</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">190</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2210.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2210.html">Elon Phoenix</a></span></td>
+        <td>12–10</td>
+        <td class="num-bad">-3.9</td>
+        <td class="num-good"><b>+0.10</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">191</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/350.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/350.html">UNC Wilmington Seahawks</a></span></td>
+        <td>12–14</td>
+        <td class="num-bad">-1.6</td>
+        <td class="num-good"><b>+0.09</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">192</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2363.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2363.html">Manhattan Jaspers</a></span></td>
+        <td>15–14</td>
+        <td class="num-good">+2.9</td>
+        <td class="num-good"><b>+0.09</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">193</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/16.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/16.html">Sacramento State Hornets</a></span></td>
+        <td>14–18</td>
+        <td class="num-bad">-0.7</td>
+        <td class="num-good"><b>+0.07</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">194</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/59.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/59.html">Georgia Tech Yellow Jackets</a></span></td>
+        <td>22–11</td>
+        <td class="num-good">+11.4</td>
+        <td class="num-good"><b>+0.07</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">195</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/82.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/82.html">UIC Flames</a></span></td>
+        <td>12–15</td>
+        <td class="num-good">+3.3</td>
+        <td class="num-good"><b>+0.07</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">196</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2032.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2032.html">Arkansas State Red Wolves</a></span></td>
+        <td>20–11</td>
+        <td class="num-good">+4.5</td>
+        <td class="num-good"><b>+0.06</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">197</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/111.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/111.html">Northeastern Huskies</a></span></td>
+        <td>3–17</td>
+        <td class="num-bad">-15.4</td>
+        <td class="num-good"><b>+0.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">198</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/24.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/24.html">Stanford Cardinal</a></span></td>
+        <td>16–14</td>
+        <td class="num-good">+4.2</td>
+        <td class="num-good"><b>+0.03</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">199</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2066.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2066.html">Binghamton Bearcats</a></span></td>
+        <td>15–15</td>
+        <td class="num-good">+1.9</td>
+        <td class="num-good"><b>+0.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">200</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2005.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2005.html">Air Force Falcons</a></span></td>
+        <td>17–14</td>
+        <td class="num-good">+2.7</td>
+        <td class="num-good"><b>+0.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">201</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2630.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2630.html">UT Martin Skyhawks</a></span></td>
+        <td>13–18</td>
+        <td class="num-bad">-0.6</td>
+        <td class="num-bad"><b>-0.01</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">202</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/259.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/259.html">Virginia Tech Hokies</a></span></td>
+        <td>19–12</td>
+        <td class="num-good">+6.0</td>
+        <td class="num-bad"><b>-0.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">203</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2115.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2115.html">Central Connecticut Blue Devils</a></span></td>
+        <td>11–19</td>
+        <td class="num-bad">-5.7</td>
+        <td class="num-bad"><b>-0.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">204</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/12.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/12.html">Arizona Wildcats</a></span></td>
+        <td>18–12</td>
+        <td class="num-good">+6.0</td>
+        <td class="num-bad"><b>-0.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">205</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/231.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/231.html">Furman Paladins</a></span></td>
+        <td>16–16</td>
+        <td class="num-good">+3.2</td>
+        <td class="num-bad"><b>-0.03</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">206</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2247.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2247.html">Georgia State Panthers</a></span></td>
+        <td>16–16</td>
+        <td class="num-bad">-2.5</td>
+        <td class="num-bad"><b>-0.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">207</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/183.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/183.html">Syracuse Orange</a></span></td>
+        <td>12–18</td>
+        <td class="num-bad">-0.9</td>
+        <td class="num-bad"><b>-0.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">208</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2348.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2348.html">Louisiana Tech Lady Techsters</a></span></td>
+        <td>16–15</td>
+        <td class="num-good">+1.7</td>
+        <td class="num-bad"><b>-0.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">209</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2400.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2400.html">Mississippi Valley State Devilettes</a></span></td>
+        <td>7–21</td>
+        <td class="num-bad">-14.8</td>
+        <td class="num-bad"><b>-0.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">210</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2351.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2351.html">Loyola Marymount Lions</a></span></td>
+        <td>14–15</td>
+        <td class="num-bad">-0.8</td>
+        <td class="num-bad"><b>-0.07</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">211</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2065.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2065.html">Bethune-Cookman Wildcats</a></span></td>
+        <td>10–19</td>
+        <td class="num-bad">-1.3</td>
+        <td class="num-bad"><b>-0.08</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">212</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2443.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2443.html">New Orleans Privateers</a></span></td>
+        <td>4–24</td>
+        <td class="num-bad">-12.1</td>
+        <td class="num-bad"><b>-0.08</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">213</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/338.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/338.html">Kennesaw State Owls</a></span></td>
+        <td>12–16</td>
+        <td class="num-bad">-1.3</td>
+        <td class="num-bad"><b>-0.08</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">214</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2640.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2640.html">Texas Southern Tigers</a></span></td>
+        <td>15–13</td>
+        <td class="num-bad">-0.3</td>
+        <td class="num-bad"><b>-0.09</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">215</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2330.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2330.html">Le Moyne Dolphins</a></span></td>
+        <td>7–22</td>
+        <td class="num-bad">-14.4</td>
+        <td class="num-bad"><b>-0.10</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">216</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/167.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/167.html">New Mexico Lobos</a></span></td>
+        <td>16–12</td>
+        <td class="num-good">+1.8</td>
+        <td class="num-bad"><b>-0.11</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">217</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/155.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/155.html">North Dakota Fighting Hawks</a></span></td>
+        <td>12–19</td>
+        <td class="num-bad">-3.8</td>
+        <td class="num-bad"><b>-0.13</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">218</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2634.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2634.html">Tennessee State Lady Tigers</a></span></td>
+        <td>9–20</td>
+        <td class="num-bad">-8.3</td>
+        <td class="num-bad"><b>-0.16</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">219</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2507.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2507.html">Providence Friars</a></span></td>
+        <td>13–19</td>
+        <td class="num-bad">-3.9</td>
+        <td class="num-bad"><b>-0.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">220</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2608.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2608.html">Saint Mary's Gaels</a></span></td>
+        <td>14–17</td>
+        <td class="num-bad">-2.1</td>
+        <td class="num-bad"><b>-0.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">221</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2296.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2296.html">Jackson State Lady Tigers</a></span></td>
+        <td>15–14</td>
+        <td class="num-bad">-5.0</td>
+        <td class="num-bad"><b>-0.21</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">222</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2724.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2724.html">Wichita State Shockers</a></span></td>
+        <td>10–21</td>
+        <td class="num-bad">-5.2</td>
+        <td class="num-bad"><b>-0.29</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">223</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2116.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2116.html">UCF Knights</a></span></td>
+        <td>12–16</td>
+        <td class="num-bad">-4.0</td>
+        <td class="num-bad"><b>-0.30</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">224</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/94.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/94.html">Northern Kentucky Norse</a></span></td>
+        <td>11–21</td>
+        <td class="num-bad">-4.0</td>
+        <td class="num-bad"><b>-0.30</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">225</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/68.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/68.html">Boise State Broncos</a></span></td>
+        <td>16–14</td>
+        <td class="num-good">+3.5</td>
+        <td class="num-bad"><b>-0.31</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">226</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/149.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/149.html">Montana Lady Griz</a></span></td>
+        <td>13–16</td>
+        <td class="num-bad">-2.5</td>
+        <td class="num-bad"><b>-0.31</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">227</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2368.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2368.html">Marist Red Foxes</a></span></td>
+        <td>16–14</td>
+        <td class="num-bad">-1.0</td>
+        <td class="num-bad"><b>-0.33</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">228</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/13.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/13.html">Cal Poly Mustangs</a></span></td>
+        <td>12–17</td>
+        <td class="num-bad">-3.9</td>
+        <td class="num-bad"><b>-0.33</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">229</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/160.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/160.html">New Hampshire Wildcats</a></span></td>
+        <td>10–19</td>
+        <td class="num-bad">-5.3</td>
+        <td class="num-bad"><b>-0.33</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">230</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2449.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2449.html">North Dakota State Bison</a></span></td>
+        <td>20–12</td>
+        <td class="num-good">+4.3</td>
+        <td class="num-bad"><b>-0.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">231</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/294.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/294.html">Jacksonville Dolphins</a></span></td>
+        <td>13–15</td>
+        <td class="num-bad">-4.1</td>
+        <td class="num-bad"><b>-0.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">232</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/219.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/219.html">Pennsylvania Quakers</a></span></td>
+        <td>12–11</td>
+        <td class="num-good">+2.8</td>
+        <td class="num-bad"><b>-0.38</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">233</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2193.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2193.html">East Tennessee State Bucs</a></span></td>
+        <td>16–13</td>
+        <td class="num-good">+3.4</td>
+        <td class="num-bad"><b>-0.41</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">234</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2515.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2515.html">Radford Highlanders</a></span></td>
+        <td>14–16</td>
+        <td class="num-bad">-2.4</td>
+        <td class="num-bad"><b>-0.43</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">235</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2261.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2261.html">Hampton Lady Pirates</a></span></td>
+        <td>6–16</td>
+        <td class="num-bad">-9.9</td>
+        <td class="num-bad"><b>-0.44</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">236</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/103.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/103.html">Boston College Eagles</a></span></td>
+        <td>15–18</td>
+        <td class="num-good">+0.8</td>
+        <td class="num-bad"><b>-0.45</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">237</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2908.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2908.html">South Carolina Upstate Spartans</a></span></td>
+        <td>9–21</td>
+        <td class="num-bad">-14.1</td>
+        <td class="num-bad"><b>-0.45</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">238</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2459.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2459.html">Northern Illinois Huskies</a></span></td>
+        <td>13–16</td>
+        <td class="num-bad">-3.1</td>
+        <td class="num-bad"><b>-0.46</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">239</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2916.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2916.html">Incarnate Word Cardinals</a></span></td>
+        <td>16–13</td>
+        <td class="num-good">+0.8</td>
+        <td class="num-bad"><b>-0.46</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">240</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/311.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/311.html">Maine Black Bears</a></span></td>
+        <td>15–16</td>
+        <td class="num-bad">-0.2</td>
+        <td class="num-bad"><b>-0.50</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">241</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/119.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/119.html">Towson Tigers</a></span></td>
+        <td>6–16</td>
+        <td class="num-bad">-6.5</td>
+        <td class="num-bad"><b>-0.52</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">242</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2534.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2534.html">Sam Houston Bearkats</a></span></td>
+        <td>11–15</td>
+        <td class="num-bad">-3.2</td>
+        <td class="num-bad"><b>-0.53</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">243</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2433.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2433.html">UL Monroe Warhawks</a></span></td>
+        <td>10–18</td>
+        <td class="num-bad">-2.2</td>
+        <td class="num-bad"><b>-0.54</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">244</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2856.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2856.html">California Baptist Lancers</a></span></td>
+        <td>12–18</td>
+        <td class="num-bad">-7.6</td>
+        <td class="num-bad"><b>-0.56</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">245</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2747.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2747.html">Wofford Terriers</a></span></td>
+        <td>17–12</td>
+        <td class="num-good">+6.6</td>
+        <td class="num-bad"><b>-0.58</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">246</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2754.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2754.html">Youngstown State Penguins</a></span></td>
+        <td>12–18</td>
+        <td class="num-bad">-2.7</td>
+        <td class="num-bad"><b>-0.60</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">247</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2711.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2711.html">Western Michigan Broncos</a></span></td>
+        <td>12–17</td>
+        <td class="num-bad">-5.6</td>
+        <td class="num-bad"><b>-0.62</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">248</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2230.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2230.html">Fordham Rams</a></span></td>
+        <td>15–14</td>
+        <td class="num-bad">-0.8</td>
+        <td class="num-bad"><b>-0.66</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">249</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2674.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2674.html">Valparaiso Beacons</a></span></td>
+        <td>12–16</td>
+        <td class="num-bad">-2.4</td>
+        <td class="num-bad"><b>-0.67</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">250</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2511.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2511.html">Queens University Royals</a></span></td>
+        <td>10–19</td>
+        <td class="num-bad">-4.7</td>
+        <td class="num-bad"><b>-0.68</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">251</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2031.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2031.html">Little Rock Trojans</a></span></td>
+        <td>13–15</td>
+        <td class="num-bad">-5.4</td>
+        <td class="num-bad"><b>-0.70</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">252</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2900.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2900.html">St. Thomas-Minnesota Tommies</a></span></td>
+        <td>16–14</td>
+        <td class="num-good">+2.2</td>
+        <td class="num-bad"><b>-0.71</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">253</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2458.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2458.html">Northern Colorado Bears</a></span></td>
+        <td>14–14</td>
+        <td class="num-good">+3.6</td>
+        <td class="num-bad"><b>-0.72</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">254</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/71.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/71.html">Bradley Braves</a></span></td>
+        <td>13–15</td>
+        <td class="num-good">+0.1</td>
+        <td class="num-bad"><b>-0.72</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">255</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2182.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2182.html">Drexel Dragons</a></span></td>
+        <td>11–11</td>
+        <td class="num-good">+0.2</td>
+        <td class="num-bad"><b>-0.75</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">256</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/172.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/172.html">Cornell Big Red</a></span></td>
+        <td>6–18</td>
+        <td class="num-bad">-7.0</td>
+        <td class="num-bad"><b>-0.79</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">257</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2377.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2377.html">McNeese Cowgirls</a></span></td>
+        <td>10–20</td>
+        <td class="num-bad">-5.9</td>
+        <td class="num-bad"><b>-0.80</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">258</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/278.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/278.html">Fresno State Bulldogs</a></span></td>
+        <td>18–13</td>
+        <td class="num-bad">-0.9</td>
+        <td class="num-bad"><b>-0.83</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">259</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/305.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/305.html">DePaul Blue Demons</a></span></td>
+        <td>11–19</td>
+        <td class="num-bad">-6.8</td>
+        <td class="num-bad"><b>-0.84</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">260</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2437.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2437.html">Omaha Mavericks</a></span></td>
+        <td>14–17</td>
+        <td class="num-bad">-5.8</td>
+        <td class="num-bad"><b>-0.86</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">261</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2506.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2506.html">Presbyterian Blue Hose</a></span></td>
+        <td>5–23</td>
+        <td class="num-bad">-11.2</td>
+        <td class="num-bad"><b>-0.86</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">262</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2453.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2453.html">North Alabama Lions</a></span></td>
+        <td>13–17</td>
+        <td class="num-bad">-1.3</td>
+        <td class="num-bad"><b>-0.86</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">263</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/326.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/326.html">Texas State Bobcats</a></span></td>
+        <td>12–17</td>
+        <td class="num-bad">-4.4</td>
+        <td class="num-bad"><b>-0.88</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">264</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/46.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/46.html">Georgetown Hoyas</a></span></td>
+        <td>11–19</td>
+        <td class="num-bad">-3.7</td>
+        <td class="num-bad"><b>-0.89</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">265</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/252.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/252.html">BYU Cougars</a></span></td>
+        <td>11–16</td>
+        <td class="num-bad">-1.3</td>
+        <td class="num-bad"><b>-0.90</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">266</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/164.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/164.html">Rutgers Scarlet Knights</a></span></td>
+        <td>12–20</td>
+        <td class="num-bad">-4.2</td>
+        <td class="num-bad"><b>-0.93</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">267</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2447.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2447.html">Nicholls Colonels</a></span></td>
+        <td>17–13</td>
+        <td class="num-good">+1.7</td>
+        <td class="num-bad"><b>-0.93</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">268</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2885.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2885.html">NJIT Highlanders</a></span></td>
+        <td>11–19</td>
+        <td class="num-bad">-1.4</td>
+        <td class="num-bad"><b>-0.94</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">269</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/61.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/61.html">Georgia Lady Bulldogs</a></span></td>
+        <td>13–19</td>
+        <td class="num-bad">-4.3</td>
+        <td class="num-bad"><b>-0.96</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">270</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2415.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2415.html">Morgan State Lady Bears</a></span></td>
+        <td>12–15</td>
+        <td class="num-bad">-6.3</td>
+        <td class="num-bad"><b>-0.97</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">271</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2086.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2086.html">Butler Bulldogs</a></span></td>
+        <td>15–18</td>
+        <td class="num-bad">-2.9</td>
+        <td class="num-bad"><b>-0.97</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">272</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/301.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/301.html">San Diego Toreros</a></span></td>
+        <td>6–24</td>
+        <td class="num-bad">-6.2</td>
+        <td class="num-bad"><b>-0.99</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">273</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2681.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2681.html">Wagner Seahawks</a></span></td>
+        <td>8–21</td>
+        <td class="num-bad">-7.4</td>
+        <td class="num-bad"><b>-1.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">274</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2046.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2046.html">Austin Peay Governors</a></span></td>
+        <td>13–18</td>
+        <td class="num-bad">-4.7</td>
+        <td class="num-bad"><b>-1.01</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">275</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/221.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/221.html">Pittsburgh Panthers</a></span></td>
+        <td>13–18</td>
+        <td class="num-bad">-3.6</td>
+        <td class="num-bad"><b>-1.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">276</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2750.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2750.html">Wright State Raiders</a></span></td>
+        <td>9–22</td>
+        <td class="num-bad">-8.8</td>
+        <td class="num-bad"><b>-1.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">277</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/77.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/77.html">Northwestern Wildcats</a></span></td>
+        <td>9–15</td>
+        <td class="num-bad">-6.2</td>
+        <td class="num-bad"><b>-1.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">278</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/331.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/331.html">Eastern Washington Eagles</a></span></td>
+        <td>10–20</td>
+        <td class="num-bad">-1.5</td>
+        <td class="num-bad"><b>-1.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">279</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2655.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2655.html">Tulane Green Wave</a></span></td>
+        <td>17–11</td>
+        <td class="num-good">+3.7</td>
+        <td class="num-bad"><b>-1.05</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">280</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/328.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/328.html">Utah State Aggies</a></span></td>
+        <td>4–25</td>
+        <td class="num-bad">-12.2</td>
+        <td class="num-bad"><b>-1.08</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">281</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/140.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/140.html">Kansas City Roos</a></span></td>
+        <td>12–20</td>
+        <td class="num-bad">-4.0</td>
+        <td class="num-bad"><b>-1.09</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">282</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/56.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/56.html">Stetson Hatters</a></span></td>
+        <td>16–15</td>
+        <td class="num-bad">-1.4</td>
+        <td class="num-bad"><b>-1.12</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">283</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2619.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2619.html">Stony Brook Seawolves</a></span></td>
+        <td>9–14</td>
+        <td class="num-bad">-4.2</td>
+        <td class="num-bad"><b>-1.13</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">284</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/235.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/235.html">Memphis Tigers</a></span></td>
+        <td>7–21</td>
+        <td class="num-bad">-8.4</td>
+        <td class="num-bad"><b>-1.14</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">285</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/55.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/55.html">Jacksonville State Gamecocks</a></span></td>
+        <td>10–19</td>
+        <td class="num-bad">-0.8</td>
+        <td class="num-bad"><b>-1.16</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">286</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2692.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2692.html">Weber State Wildcats</a></span></td>
+        <td>12–16</td>
+        <td class="num-bad">-3.5</td>
+        <td class="num-bad"><b>-1.18</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">287</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2099.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2099.html">Canisius Golden Griffins</a></span></td>
+        <td>10–20</td>
+        <td class="num-bad">-9.7</td>
+        <td class="num-bad"><b>-1.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">288</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/6.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/6.html">South Alabama Jaguars</a></span></td>
+        <td>6–21</td>
+        <td class="num-bad">-10.9</td>
+        <td class="num-bad"><b>-1.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">289</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2241.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2241.html">Gardner-Webb Runnin' Bulldogs</a></span></td>
+        <td>11–18</td>
+        <td class="num-bad">-4.5</td>
+        <td class="num-bad"><b>-1.19</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">290</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2305.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2305.html">Kansas Jayhawks</a></span></td>
+        <td>13–14</td>
+        <td class="num-bad">-2.4</td>
+        <td class="num-bad"><b>-1.20</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">291</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/233.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/233.html">South Dakota Coyotes</a></span></td>
+        <td>11–20</td>
+        <td class="num-bad">-6.4</td>
+        <td class="num-bad"><b>-1.22</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">292</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2427.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2427.html">UNC Asheville Bulldogs</a></span></td>
+        <td>4–27</td>
+        <td class="num-bad">-9.0</td>
+        <td class="num-bad"><b>-1.24</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">293</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2429.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2429.html">Charlotte 49ers</a></span></td>
+        <td>11–20</td>
+        <td class="num-bad">-7.8</td>
+        <td class="num-bad"><b>-1.27</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">294</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2390.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2390.html">Miami Hurricanes</a></span></td>
+        <td>13–15</td>
+        <td class="num-bad">-1.8</td>
+        <td class="num-bad"><b>-1.27</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">295</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2541.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2541.html">Santa Clara Broncos</a></span></td>
+        <td>14–17</td>
+        <td class="num-bad">-2.3</td>
+        <td class="num-bad"><b>-1.29</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">296</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2172.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2172.html">Denver Pioneers</a></span></td>
+        <td>8–21</td>
+        <td class="num-bad">-4.2</td>
+        <td class="num-bad"><b>-1.30</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">297</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2.html">Auburn Tigers</a></span></td>
+        <td>11–18</td>
+        <td class="num-good">+2.0</td>
+        <td class="num-bad"><b>-1.31</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">298</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2011.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2011.html">Alabama State Lady Hornets</a></span></td>
+        <td>5–24</td>
+        <td class="num-bad">-22.4</td>
+        <td class="num-bad"><b>-1.33</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">299</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2350.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2350.html">Loyola Chicago Ramblers</a></span></td>
+        <td>13–17</td>
+        <td class="num-bad">-5.8</td>
+        <td class="num-bad"><b>-1.33</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">300</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2026.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2026.html">App State Mountaineers</a></span></td>
+        <td>12–16</td>
+        <td class="num-bad">-3.6</td>
+        <td class="num-bad"><b>-1.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">301</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2752.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2752.html">Xavier Musketeers</a></span></td>
+        <td>7–24</td>
+        <td class="num-bad">-11.3</td>
+        <td class="num-bad"><b>-1.36</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">302</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2378.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2378.html">UMBC Retrievers</a></span></td>
+        <td>13–15</td>
+        <td class="num-bad">-3.9</td>
+        <td class="num-bad"><b>-1.38</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">303</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/23.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/23.html">San José State Spartans</a></span></td>
+        <td>10–21</td>
+        <td class="num-bad">-6.3</td>
+        <td class="num-bad"><b>-1.38</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">304</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2598.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2598.html">Saint Francis Red Flash</a></span></td>
+        <td>11–19</td>
+        <td class="num-bad">-11.1</td>
+        <td class="num-bad"><b>-1.39</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">305</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/270.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/270.html">Milwaukee Panthers</a></span></td>
+        <td>7–23</td>
+        <td class="num-bad">-8.2</td>
+        <td class="num-bad"><b>-1.40</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">306</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2174.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2174.html">Detroit Mercy Titans</a></span></td>
+        <td>14–15</td>
+        <td class="num-bad">-6.7</td>
+        <td class="num-bad"><b>-1.40</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">307</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/213.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/213.html">Penn State Lady Lions</a></span></td>
+        <td>10–19</td>
+        <td class="num-good">+0.4</td>
+        <td class="num-bad"><b>-1.41</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">308</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/142.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/142.html">Missouri Tigers</a></span></td>
+        <td>14–18</td>
+        <td class="num-good">+0.9</td>
+        <td class="num-bad"><b>-1.41</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">309</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/275.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/275.html">Wisconsin Badgers</a></span></td>
+        <td>13–16</td>
+        <td class="num-bad">-6.1</td>
+        <td class="num-bad"><b>-1.42</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">310</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/322.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/322.html">Lafayette Leopards</a></span></td>
+        <td>10–21</td>
+        <td class="num-bad">-10.4</td>
+        <td class="num-bad"><b>-1.45</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">311</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/5.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/5.html">UAB Blazers</a></span></td>
+        <td>15–15</td>
+        <td class="num-good">+0.3</td>
+        <td class="num-bad"><b>-1.47</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">312</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2565.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2565.html">SIU Edwardsville Cougars</a></span></td>
+        <td>6–22</td>
+        <td class="num-bad">-10.9</td>
+        <td class="num-bad"><b>-1.52</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">313</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2729.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2729.html">William & Mary Tribe</a></span></td>
+        <td>9–15</td>
+        <td class="num-bad">-8.7</td>
+        <td class="num-bad"><b>-1.52</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">314</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2572.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2572.html">Southern Miss Lady Eagles</a></span></td>
+        <td>8–20</td>
+        <td class="num-bad">-7.8</td>
+        <td class="num-bad"><b>-1.55</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">315</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/43.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/43.html">Yale Bulldogs</a></span></td>
+        <td>3–21</td>
+        <td class="num-bad">-17.2</td>
+        <td class="num-bad"><b>-1.65</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">316</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2325.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2325.html">La Salle Explorers</a></span></td>
+        <td>9–23</td>
+        <td class="num-bad">-12.1</td>
+        <td class="num-bad"><b>-1.69</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">317</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2440.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2440.html">Nevada Wolf Pack</a></span></td>
+        <td>11–20</td>
+        <td class="num-bad">-2.9</td>
+        <td class="num-bad"><b>-1.72</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">318</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2504.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2504.html">Prairie View A&M Lady Panthers</a></span></td>
+        <td>9–18</td>
+        <td class="num-bad">-7.3</td>
+        <td class="num-bad"><b>-1.74</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">319</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2934.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2934.html">Cal State Bakersfield Roadrunners</a></span></td>
+        <td>2–28</td>
+        <td class="num-bad">-17.4</td>
+        <td class="num-bad"><b>-1.76</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">320</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/154.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/154.html">Wake Forest Demon Deacons</a></span></td>
+        <td>9–19</td>
+        <td class="num-bad">-3.6</td>
+        <td class="num-bad"><b>-1.79</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">321</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2199.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2199.html">Eastern Michigan Eagles</a></span></td>
+        <td>2–26</td>
+        <td class="num-bad">-15.6</td>
+        <td class="num-bad"><b>-1.80</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">322</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2546.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2546.html">Southeast Missouri State Redhawks</a></span></td>
+        <td>5–23</td>
+        <td class="num-bad">-14.7</td>
+        <td class="num-bad"><b>-1.82</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">323</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2509.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2509.html">Purdue Boilermakers</a></span></td>
+        <td>9–19</td>
+        <td class="num-bad">-12.6</td>
+        <td class="num-bad"><b>-1.83</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">324</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/195.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/195.html">Ohio Bobcats</a></span></td>
+        <td>6–23</td>
+        <td class="num-bad">-14.9</td>
+        <td class="num-bad"><b>-1.86</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">325</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2277.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2277.html">Houston Christian Huskies</a></span></td>
+        <td>6–23</td>
+        <td class="num-bad">-14.6</td>
+        <td class="num-bad"><b>-1.87</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">326</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2229.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2229.html">Florida International Panthers</a></span></td>
+        <td>11–18</td>
+        <td class="num-bad">-2.5</td>
+        <td class="num-bad"><b>-1.88</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">327</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2638.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2638.html">UTEP Miners</a></span></td>
+        <td>11–18</td>
+        <td class="num-bad">-5.5</td>
+        <td class="num-bad"><b>-1.88</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">328</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2239.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2239.html">Cal State Fullerton Titans</a></span></td>
+        <td>7–23</td>
+        <td class="num-bad">-5.3</td>
+        <td class="num-bad"><b>-1.90</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">329</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2520.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2520.html">Rider Broncs</a></span></td>
+        <td>7–22</td>
+        <td class="num-bad">-9.1</td>
+        <td class="num-bad"><b>-1.90</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">330</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2454.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2454.html">North Florida Ospreys</a></span></td>
+        <td>4–26</td>
+        <td class="num-bad">-15.3</td>
+        <td class="num-bad"><b>-1.91</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">331</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2226.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2226.html">Florida Atlantic Owls</a></span></td>
+        <td>9–21</td>
+        <td class="num-bad">-6.7</td>
+        <td class="num-bad"><b>-1.98</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">332</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2006.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2006.html">Akron Zips</a></span></td>
+        <td>10–21</td>
+        <td class="num-bad">-5.1</td>
+        <td class="num-bad"><b>-2.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">333</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/314.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/314.html">Iona Gaels</a></span></td>
+        <td>10–20</td>
+        <td class="num-bad">-6.8</td>
+        <td class="num-bad"><b>-2.01</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">334</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2349.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2349.html">UMass Lowell River Hawks</a></span></td>
+        <td>3–25</td>
+        <td class="num-bad">-15.0</td>
+        <td class="num-bad"><b>-2.01</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">335</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/8.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/8.html">Arkansas Razorbacks</a></span></td>
+        <td>9–22</td>
+        <td class="num-bad">-10.8</td>
+        <td class="num-bad"><b>-2.02</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">336</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/9.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/9.html">Arizona State Sun Devils</a></span></td>
+        <td>10–22</td>
+        <td class="num-bad">-6.6</td>
+        <td class="num-bad"><b>-2.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">337</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/315.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/315.html">Niagara Purple Eagles</a></span></td>
+        <td>3–25</td>
+        <td class="num-bad">-20.6</td>
+        <td class="num-bad"><b>-2.04</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">338</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2132.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2132.html">Cincinnati Bearcats</a></span></td>
+        <td>15–14</td>
+        <td class="num-bad">-1.4</td>
+        <td class="num-bad"><b>-2.06</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">339</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/248.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/248.html">Houston Cougars</a></span></td>
+        <td>5–25</td>
+        <td class="num-bad">-9.9</td>
+        <td class="num-bad"><b>-2.07</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">340</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2029.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2029.html">Arkansas-Pine Bluff Golden Lions</a></span></td>
+        <td>3–23</td>
+        <td class="num-bad">-13.2</td>
+        <td class="num-bad"><b>-2.21</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">341</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2382.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2382.html">Mercer Bears</a></span></td>
+        <td>8–22</td>
+        <td class="num-bad">-11.6</td>
+        <td class="num-bad"><b>-2.25</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">342</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2547.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2547.html">Seattle U Redhawks</a></span></td>
+        <td>4–25</td>
+        <td class="num-bad">-16.0</td>
+        <td class="num-bad"><b>-2.26</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">343</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2502.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2502.html">Portland State Vikings</a></span></td>
+        <td>4–22</td>
+        <td class="num-bad">-11.9</td>
+        <td class="num-bad"><b>-2.27</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">344</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2492.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2492.html">Pepperdine Waves</a></span></td>
+        <td>7–22</td>
+        <td class="num-bad">-10.1</td>
+        <td class="num-bad"><b>-2.30</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">345</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2567.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2567.html">SMU Mustangs</a></span></td>
+        <td>10–20</td>
+        <td class="num-bad">-4.1</td>
+        <td class="num-bad"><b>-2.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">346</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/339.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/339.html">Evansville Purple Aces</a></span></td>
+        <td>7–22</td>
+        <td class="num-bad">-12.9</td>
+        <td class="num-bad"><b>-2.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">347</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2352.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2352.html">Loyola Maryland Greyhounds</a></span></td>
+        <td>9–21</td>
+        <td class="num-bad">-4.6</td>
+        <td class="num-bad"><b>-2.35</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">348</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/3101.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/3101.html">Utah Tech Trailblazers</a></span></td>
+        <td>5–24</td>
+        <td class="num-bad">-12.4</td>
+        <td class="num-bad"><b>-2.42</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">349</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/282.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/282.html">Indiana State Sycamores</a></span></td>
+        <td>4–25</td>
+        <td class="num-bad">-11.9</td>
+        <td class="num-bad"><b>-2.46</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">350</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2837.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2837.html">East Texas A&M Lions</a></span></td>
+        <td>7–22</td>
+        <td class="num-bad">-7.2</td>
+        <td class="num-bad"><b>-2.50</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">351</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/159.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/159.html">Dartmouth Big Green</a></span></td>
+        <td>8–16</td>
+        <td class="num-bad">-5.2</td>
+        <td class="num-bad"><b>-2.64</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">352</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/179.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/179.html">St. Bonaventure Bonnies</a></span></td>
+        <td>6–24</td>
+        <td class="num-bad">-16.1</td>
+        <td class="num-bad"><b>-2.67</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">353</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2569.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2569.html">South Carolina State Lady Bulldogs</a></span></td>
+        <td>2–26</td>
+        <td class="num-bad">-19.1</td>
+        <td class="num-bad"><b>-2.72</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">354</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/112358.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/112358.html">Long Island University Sharks</a></span></td>
+        <td>6–24</td>
+        <td class="num-bad">-14.1</td>
+        <td class="num-bad"><b>-2.87</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">355</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2473.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2473.html">Oakland Golden Grizzlies</a></span></td>
+        <td>7–22</td>
+        <td class="num-bad">-12.8</td>
+        <td class="num-bad"><b>-2.95</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">356</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2463.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2463.html">Cal State Northridge Matadors</a></span></td>
+        <td>4–25</td>
+        <td class="num-bad">-18.7</td>
+        <td class="num-bad"><b>-3.00</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">357</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/2169.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/2169.html">Delaware State Hornets</a></span></td>
+        <td>5–21</td>
+        <td class="num-bad">-15.5</td>
+        <td class="num-bad"><b>-3.50</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">358</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/79.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/79.html">Southern Illinois Salukis</a></span></td>
+        <td>3–24</td>
+        <td class="num-bad">-18.7</td>
+        <td class="num-bad"><b>-4.13</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">359</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/245.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/245.html">Texas A&M Aggies</a></span></td>
+        <td>10–19</td>
+        <td class="num-bad">-7.4</td>
+        <td class="num-bad"><b>-4.17</b></td>
+      </tr>
+    
+      <tr>
+        <td class="muted">360</td>
+        <td class="l"><span class="tcell"><img loading="lazy" src="https://a.espncdn.com/i/teamlogos/ncaa/500/44.png" onerror="this.style.visibility='hidden'">
+          <a href="teams/2025/44.html">American University Eagles</a></span></td>
+        <td>1–29</td>
+        <td class="num-bad">-18.5</td>
+        <td class="num-bad"><b>-4.37</b></td>
+      </tr>
+    
+    </tbody>
+  </table>
+</div>
+
+</main>
+<footer>RAPM = regularized adjusted plus-minus, points per 100 possessions vs average, adjusted for teammates and opponents.<br>
+Data: ESPN via wehoop &middot; season 2024–25</footer>
+
+</body>
+</html>

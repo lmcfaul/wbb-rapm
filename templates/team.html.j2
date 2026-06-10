@@ -9,6 +9,7 @@
       <span class="muted small">{{ team.record }} &middot; net margin {{ '%+.1f'|format(team.net_margin) }}/game</span>
     </div>
   </div>
+  {% if coverage_note %}<p class="small muted">&#9888; {{ coverage_note }}</p>{% endif %}
   <div class="statgrid" style="margin-top:16px">
     <div class="stat"><div class="v {{ 'num-good' if team.team_rapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(team.team_rapm) }}</div>
       <div class="k">Team RAPM (min-weighted)</div></div>

@@ -1,4 +1,12 @@
-"""Stage 6: render the static explorer site from processed outputs."""
+"""Stage 6: render the static explorer site from processed outputs.
+
+Pages are generated per season (index-<s>.html, teamindex-<s>.html,
+stanford-<s>.html, about-<s>.html, teams/<s>/<id>.html) with root aliases
+(index.html, ...) pointing at the latest season. A header dropdown switches
+the current page to its equivalent in another season, and a cross-season
+history file (data/history.js) powers per-player season-by-season ratings
+in the leaderboard modal.
+"""
 from __future__ import annotations
 
 import json
@@ -24,19 +32,30 @@ PLAYER_JS_COLS = [
     "athlete_id", "name", "team", "team_logo", "position", "headshot",
     "games", "minutes", "orapm", "drapm", "rapm", "rapm_margin", "rank", "low_sample",
 ]
+HISTORY_COLS = ["season", "team", "games", "minutes", "orapm", "drapm", "rapm", "rank"]
 
 
 def season_label(season: int) -> str:
     return f"{season - 1}–{str(season)[2:]}"
 
 
-def _available_seasons() -> list[int]:
+def available_seasons() -> list[int]:
     out = []
     for p in PROCESSED_DIR.glob("ratings_*.parquet"):
         m = re.fullmatch(r"ratings_(\d{4})\.parquet", p.name)
         if m:
             out.append(int(m.group(1)))
     return sorted(out)
+
+
+def _page_hrefs(season: int) -> dict[str, str]:
+    """Root-relative hrefs for one season's pages."""
+    return {
+        "index": f"index-{season}.html",
+        "teams": f"teamindex-{season}.html",
+        "stanford": f"stanford-{season}.html",
+        "about": f"about-{season}.html",
+    }
 
 
 def _team_summaries(ratings: pd.DataFrame, team_box: pd.DataFrame, teams_ref: pd.DataFrame) -> pd.DataFrame:
@@ -99,6 +118,52 @@ def _top_lineups(stints: pd.DataFrame, team_id: int, names: dict[int, str], top_
     ]
 
 
+def build_history() -> None:
+    """data/history.js: athlete_id -> per-season rating records, all seasons."""
+    frames = []
+    for s in available_seasons():
+        r = pd.read_parquet(SeasonPaths(s).ratings, columns=HISTORY_COLS + ["athlete_id"])
+        frames.append(r)
+    if not frames:
+        return
+    df = pd.concat(frames).sort_values(["athlete_id", "season"])
+    for c in ("orapm", "drapm", "rapm", "minutes"):
+        df[c] = df[c].astype(float).round(2)
+    df = df.where(df.notna(), None)
+    hist: dict[str, list] = {}
+    for aid, grp in df.groupby("athlete_id"):
+        hist[str(int(aid))] = grp[HISTORY_COLS].to_dict(orient="records")
+    (SITE_DIR / "data").mkdir(parents=True, exist_ok=True)
+    (SITE_DIR / "data" / "history.js").write_text(
+        "window.WBB_HISTORY = " + json.dumps(hist) + ";"
+    )
+
+
+def _season_switch(current: int, page: str, rel: str, team_pages: dict[int, set[int]] | None = None,
+                   team_id: int | None = None) -> list[dict]:
+    """Header dropdown options: this page's equivalent in every built season."""
+    out = []
+    for s in available_seasons():
+        if page == "team" and team_id is not None:
+            # fall back to that season's team index if the team wasn't rated
+            if team_pages and team_id in team_pages.get(s, set()):
+                href = f"{rel}teams/{s}/{team_id}.html"
+            else:
+                href = f"{rel}{_page_hrefs(s)['teams']}"
+        else:
+            href = rel + _page_hrefs(s).get(page, _page_hrefs(s)["index"])
+        out.append({"label": season_label(s), "href": href, "current": s == current})
+    return out
+
+
+def _rated_team_ids() -> dict[int, set[int]]:
+    out = {}
+    for s in available_seasons():
+        r = pd.read_parquet(SeasonPaths(s).ratings, columns=["team_id"])
+        out[s] = set(r["team_id"].dropna().astype(int))
+    return out
+
+
 def build_site(season: int) -> None:
     paths = SeasonPaths(season)
     ratings = pd.read_parquet(paths.ratings)
@@ -112,7 +177,7 @@ def build_site(season: int) -> None:
 
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR), autoescape=False)
     (SITE_DIR / "data").mkdir(parents=True, exist_ok=True)
-    (SITE_DIR / "teams").mkdir(parents=True, exist_ok=True)
+    (SITE_DIR / "teams" / str(season)).mkdir(parents=True, exist_ok=True)
 
     # --- data files (JS for the table, CSV for download) ---
     js_df = ratings[PLAYER_JS_COLS].copy()
@@ -127,30 +192,42 @@ def build_site(season: int) -> None:
         SITE_DIR / "data" / f"ratings_{season}.csv", index=False
     )
 
-    seasons = [
-        {"season": s, "label": season_label(s),
-         "href": "index.html" if s == max(_available_seasons()) else f"index-{s}.html"}
-        for s in _available_seasons()
-    ]
+    is_latest = season == max(available_seasons())
+    hrefs = _page_hrefs(season)
+    team_pages = _rated_team_ids()
+
+    lr = validation.get("lineups", {})
+    coverage_note = None
+    if lr.get("n_games") and lr.get("n_excluded", 0) / lr["n_games"] > 0.2 and lr.get("included_date_range"):
+        d0, d1 = lr["included_date_range"]
+        coverage_note = (
+            f"Partial season: ESPN only recorded substitutions for "
+            f"{lr['included_games']} of {lr['n_games']} games "
+            f"({d0} to {d1}), so these ratings cover late-season play only."
+        )
+
     common = {
         "season": season,
         "season_label": season_label(season),
-        "seasons": seasons,
         "min_minutes_default": MIN_MINUTES_DEFAULT_FILTER,
         "low_minutes_flag": LOW_MINUTES_FLAG,
         "lineup_min_poss": LINEUP_MIN_POSS,
+        "coverage_note": coverage_note,
     }
+
+    def write(name: str, html: str, alias: str | None = None) -> None:
+        (SITE_DIR / name).write_text(html)
+        if is_latest and alias:
+            (SITE_DIR / alias).write_text(html)
 
     # --- leaderboard ---
     team_options = ratings.dropna(subset=["team"]).drop_duplicates("team")[["team"]]
     team_options = team_options.sort_values("team").to_dict(orient="records")
     index_html = env.get_template("index.html.j2").render(
-        page="index", rel="", teams=team_options, **common
+        page="index", rel="", nav=hrefs, teams=team_options,
+        season_switch=_season_switch(season, "index", ""), **common
     )
-    is_latest = season == max(_available_seasons())
-    (SITE_DIR / f"index-{season}.html").write_text(index_html)
-    if is_latest:
-        (SITE_DIR / "index.html").write_text(index_html)
+    write(hrefs["index"], index_html, "index.html")
 
     # --- team pages ---
     summaries = _team_summaries(ratings, team_box, teams_ref)
@@ -160,12 +237,13 @@ def build_site(season: int) -> None:
                    "orapm", "drapm", "rapm", "low_sample"]
 
     teamindex_html = env.get_template("teamindex.html.j2").render(
-        page="teams", rel="", teams=summaries.to_dict(orient="records"), **common
+        page="teams", rel="", nav=hrefs, teams=summaries.to_dict(orient="records"),
+        season_switch=_season_switch(season, "teams", ""), **common
     )
-    (SITE_DIR / "teamindex.html").write_text(teamindex_html)
+    write(hrefs["teams"], teamindex_html, "teamindex.html")
 
     team_tpl = env.get_template("team.html.j2")
-    stanford_html = None
+    nav_up = {k: "../../" + v for k, v in hrefs.items()}
     for row in summaries.itertuples(index=False):
         tid = int(row.team_id)
         roster = ratings[ratings["team_id"] == tid].sort_values("rapm", ascending=False)
@@ -176,18 +254,33 @@ def build_site(season: int) -> None:
             "players": roster[roster_cols].to_dict(orient="records"),
             "lineups": _top_lineups(stints, tid, names),
         }
-        html = team_tpl.render(page="team", rel="../", team=team_ctx, **common)
-        (SITE_DIR / "teams" / f"{tid}.html").write_text(html)
+        html = team_tpl.render(
+            page="team", rel="../../", nav=nav_up, team=team_ctx,
+            season_switch=_season_switch(season, "team", "../../", team_pages, tid), **common
+        )
+        (SITE_DIR / "teams" / str(season) / f"{tid}.html").write_text(html)
         if STANFORD_TEAM_NAME.lower() in str(row.name).lower():
-            stanford_html = team_tpl.render(page="stanford", rel="", team=team_ctx, **common)
-
-    if stanford_html is not None:
-        (SITE_DIR / "stanford.html").write_text(stanford_html)
+            stanford_html = team_tpl.render(
+                page="stanford", rel="", nav=hrefs, team=team_ctx,
+                season_switch=_season_switch(season, "stanford", ""), **common
+            )
+            write(hrefs["stanford"], stanford_html, "stanford.html")
 
     # --- about / validation ---
     class DotDict(dict):
         __getattr__ = dict.get
 
     v = json.loads(json.dumps(validation), object_hook=DotDict)
-    about_html = env.get_template("about.html.j2").render(page="about", rel="", v=v, **common)
-    (SITE_DIR / "about.html").write_text(about_html)
+    about_html = env.get_template("about.html.j2").render(
+        page="about", rel="", nav=hrefs, v=v,
+        season_switch=_season_switch(season, "about", ""), **common
+    )
+    write(hrefs["about"], about_html, "about.html")
+
+
+def build_all_sites() -> None:
+    """Rebuild every built season's pages (so season dropdowns stay complete)
+    plus the cross-season player history."""
+    for s in available_seasons():
+        build_site(s)
+    build_history()

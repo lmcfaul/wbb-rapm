@@ -21,6 +21,10 @@ header h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
 header h1 a { color: var(--text); }
 header nav a { color: var(--muted); margin-right: 14px; font-size: 14px; }
 header nav a.active, header nav a:hover { color: var(--text); }
+.season-pick { margin-left: auto; font-size: 12px; color: var(--muted);
+               display: flex; gap: 6px; align-items: center; }
+.season-pick select { background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+                      border-radius: 6px; padding: 5px 8px; font-size: 13px; }
 main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
 .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
          padding: 18px 20px; margin-bottom: 20px; }
@@ -67,18 +71,25 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 <header>
   <h1><a href="index.html">WBB RAPM</a> <span class="muted small">D1 women's basketball, adjusted player ratings</span></h1>
   <nav>
-    <a href="index.html" class="active">Leaderboard</a>
-    <a href="teamindex.html" >Teams</a>
-    <a href="stanford.html" >Stanford</a>
-    <a href="about.html" >About / Validation</a>
+    <a href="index-2026.html" class="active">Leaderboard</a>
+    <a href="teamindex-2026.html" >Teams</a>
+    <a href="stanford-2026.html" >Stanford</a>
+    <a href="about-2026.html" >About / Validation</a>
   </nav>
+  
+  <label class="season-pick">Season
+    <select onchange="location.href=this.value">
+      <option value="index-2025.html" >2024–25</option><option value="index-2026.html" selected>2025–26</option>
+    </select>
+  </label>
+  
 </header>
 <main>
 
 <div class="panel">
   <h2>Player leaderboard &mdash; 2025–26</h2>
+  
   <div class="controls">
-    
     <input type="text" id="f-search" placeholder="Search player or team...">
     <label>Team
       <select id="f-team"><option value="">All teams</option>
@@ -113,8 +124,11 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 Data: ESPN via wehoop &middot; season 2025–26</footer>
 
 <script src="data/ratings_2026.js"></script>
+<script src="data/history.js"></script>
 <script>
 const D = window.WBB_DATA.players;
+const HIST = window.WBB_HISTORY || {};
+const seasonLabel = s => (s - 1) + '–' + String(s).slice(2);
 const fmt1 = x => (x >= 0 ? '+' : '') + x.toFixed(1);
 const cls = x => x >= 0 ? 'num-good' : 'num-bad';
 let sortKey = 'rapm', sortDir = 'desc';
@@ -185,10 +199,31 @@ function openModal(id) {
     </div>
     <div style="margin-top:14px" class="small muted">Offense ${bar(p.orapm)} Defense ${bar(p.drapm)}
     Margin-model RAPM: <b class="${cls(p.rapm_margin)}">${fmt1(p.rapm_margin)}</b>
-    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the ridge prior; read with care.' : ''}</div>`;
+    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the ridge prior; read with care.' : ''}</div>
+    ${historyTable(p.athlete_id)}`;
   document.getElementById('modal').style.display = 'block';
   document.getElementById('modal-backdrop').style.display = 'block';
 }
+function historyTable(id) {
+  const h = HIST[String(id)];
+  if (!h || h.length < 1) return '';
+  const rows = h.slice().sort((a, b) => b.season - a.season).map(r => `
+    <tr${r.season === 2026 ? ' style="background:var(--panel2)"' : ''}>
+      <td class="l">${seasonLabel(r.season)}</td>
+      <td class="l">${r.team || ''}</td>
+      <td>${r.games}</td><td>${Math.round(r.minutes)}</td>
+      <td class="${cls(r.orapm)}">${fmt1(r.orapm)}</td>
+      <td class="${cls(r.drapm)}">${fmt1(r.drapm)}</td>
+      <td class="${cls(r.rapm)}"><b>${fmt1(r.rapm)}</b></td>
+      <td class="muted">#${r.rank}</td>
+    </tr>`).join('');
+  return `<div style="margin-top:16px"><b class="small">Season history</b>
+    <table style="margin-top:6px"><thead><tr>
+      <th class="l">Season</th><th class="l">Team</th><th>GP</th><th>Min</th>
+      <th>ORAPM</th><th>DRAPM</th><th>RAPM</th><th>Rank</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
 function closeModal() {
   document.getElementById('modal').style.display = 'none';
   document.getElementById('modal-backdrop').style.display = 'none';

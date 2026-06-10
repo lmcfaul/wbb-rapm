@@ -21,6 +21,10 @@ header h1 { font-size: 18px; margin: 0; letter-spacing: .5px; }
 header h1 a { color: var(--text); }
 header nav a { color: var(--muted); margin-right: 14px; font-size: 14px; }
 header nav a.active, header nav a:hover { color: var(--text); }
+.season-pick { margin-left: auto; font-size: 12px; color: var(--muted);
+               display: flex; gap: 6px; align-items: center; }
+.season-pick select { background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+                      border-radius: 6px; padding: 5px 8px; font-size: 13px; }
 main { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
 .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
          padding: 18px 20px; margin-bottom: 20px; }
@@ -67,11 +71,18 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 <header>
   <h1><a href="{{ rel }}index.html">WBB RAPM</a> <span class="muted small">D1 women's basketball, adjusted player ratings</span></h1>
   <nav>
-    <a href="{{ rel }}index.html" {% if page == 'index' %}class="active"{% endif %}>Leaderboard</a>
-    <a href="{{ rel }}teamindex.html" {% if page == 'teams' %}class="active"{% endif %}>Teams</a>
-    <a href="{{ rel }}stanford.html" {% if page == 'stanford' %}class="active"{% endif %}>Stanford</a>
-    <a href="{{ rel }}about.html" {% if page == 'about' %}class="active"{% endif %}>About / Validation</a>
+    <a href="{{ rel }}{{ nav.index }}" {% if page == 'index' %}class="active"{% endif %}>Leaderboard</a>
+    <a href="{{ rel }}{{ nav.teams }}" {% if page == 'teams' %}class="active"{% endif %}>Teams</a>
+    <a href="{{ rel }}{{ nav.stanford }}" {% if page == 'stanford' %}class="active"{% endif %}>Stanford</a>
+    <a href="{{ rel }}{{ nav.about }}" {% if page == 'about' %}class="active"{% endif %}>About / Validation</a>
   </nav>
+  {% if season_switch|length > 1 %}
+  <label class="season-pick">Season
+    <select onchange="location.href=this.value">
+      {% for o in season_switch %}<option value="{{ o.href }}" {% if o.current %}selected{% endif %}>{{ o.label }}</option>{% endfor %}
+    </select>
+  </label>
+  {% endif %}
 </header>
 <main>
 {% block content %}{% endblock %}

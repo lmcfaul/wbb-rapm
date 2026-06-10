@@ -26,6 +26,7 @@
 
 <div class="panel">
   <h2>Pipeline validation &mdash; {{ season_label }}</h2>
+  {% if coverage_note %}<p class="small muted" style="margin-top:-4px">&#9888; {{ coverage_note }}</p>{% endif %}
   <div class="statgrid">
     <div class="stat"><div class="v">{{ '%.2f'|format(v.team_sanity.pearson_rapm_vs_net_margin) }}</div>
       <div class="k">corr: team RAPM vs net margin</div></div>
@@ -47,6 +48,15 @@
   The team check aggregates player RAPM (minute-weighted) per team and confirms that good
   teams rate higher &mdash; positive correlation with both scoring margin and winning percentage.
   Ridge &lambda;: {{ v.model.lam_margin|int }} (margin model), {{ v.model.lam_od|int }} (O/D model).</p>
+</div>
+
+<div class="panel">
+  <h2>Season availability</h2>
+  <p class="small">Lineup-based RAPM needs substitution events, and ESPN's women's
+  college basketball play-by-play only began recording them during the 2024&ndash;25
+  season (from February 12, 2025). That means 2025&ndash;26 has full-season coverage,
+  2024&ndash;25 covers late-season play only (flagged above), and 2023&ndash;24 and
+  earlier cannot be rated with this method &mdash; no substitution data exists in the feed.</p>
 </div>
 
 <div class="panel">

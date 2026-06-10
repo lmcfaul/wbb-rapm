@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import pandas as pd  # noqa: E402
 
 from wbbrapm import io, lineups, rapm, stints, validate  # noqa: E402
-from wbbrapm.config import PROCESSED_DIR, SeasonPaths  # noqa: E402
+from wbbrapm.config import MIN_SUBS_PER_GAME, PROCESSED_DIR, SeasonPaths  # noqa: E402
 
 
 def fetch(season: int) -> None:
@@ -39,6 +39,9 @@ def build_stints_for_season(season: int):
     print("[load] reading raw extracts ...")
     pbp = io.load_pbp(paths)
     player_box = io.load_player_box(paths)
+    game_dates = (
+        player_box.drop_duplicates("game_id").set_index("game_id")["game_date"].astype(str).to_dict()
+    )
 
     print("[lineups] reconstructing on-court lineups ...")
     starters, rosters, names = lineups.build_game_inputs(player_box)
@@ -46,11 +49,15 @@ def build_stints_for_season(season: int):
 
     all_stints = []
     game_maes: dict[int, float] = {}
-    qa_counts = dict(toggle_errors=0, forced_on=0, overfull=0, bad_starters=0)
+    qa_counts = dict(toggle_errors=0, forced_on=0, overfull=0, bad_starters=0, no_subs=0)
     t0 = time.time()
     n_games = pbp["game_id"].nunique()
     for k, (gid, gpbp) in enumerate(pbp.groupby("game_id", sort=False)):
         gid = int(gid)
+        if (gpbp["type_text"] == "Substitution").sum() < MIN_SUBS_PER_GAME:
+            qa_counts["no_subs"] += 1
+            game_maes[gid] = float("nan")
+            continue
         gl = lineups.reconstruct_game(gpbp, starters.get(gid, {}), rosters.get(gid, {}), names.get(gid, {}))
         if not gl.ok:
             qa_counts["bad_starters"] += 1
@@ -70,9 +77,24 @@ def build_stints_for_season(season: int):
 
     report = validate.reconciliation_report(game_maes)
     report["qa_counts"] = qa_counts
-    print(f"[lineups] minute MAE mean={report['mean_mae_minutes']:.3f} "
-          f"median={report['median_mae_minutes']:.3f} p95={report['p95_mae_minutes']:.3f}; "
-          f"excluding {report['n_excluded']}/{report['n_games']} games")
+    if report["mean_mae_minutes"] is not None:
+        print(f"[lineups] minute MAE mean={report['mean_mae_minutes']:.3f} "
+              f"median={report['median_mae_minutes']:.3f} p95={report['p95_mae_minutes']:.3f}; "
+              f"excluding {report['n_excluded']}/{report['n_games']} games")
+
+    included = [g for g, m in game_maes.items()
+                if pd.notna(m) and m <= report["threshold"] and g in game_dates]
+    if not included:
+        raise SystemExit(
+            f"[lineups] no game passed QA for season {season} - the ESPN pbp for this "
+            "season has no usable substitution data, so RAPM cannot be computed."
+        )
+    inc_dates = sorted(game_dates[g][:10] for g in included)
+    report["included_games"] = len(included)
+    report["included_date_range"] = [inc_dates[0], inc_dates[-1]]
+    if report["n_excluded"] / report["n_games"] > 0.2:
+        print(f"[lineups] WARNING: only {len(included)}/{report['n_games']} games usable; "
+              f"ratings cover {inc_dates[0]} -> {inc_dates[-1]} only (partial-season coverage)")
 
     stint_df = pd.concat(all_stints, ignore_index=True)
     paths.lineup_report.parent.mkdir(parents=True, exist_ok=True)
@@ -141,8 +163,8 @@ def main() -> None:
 
     if not args.no_site:
         from wbbrapm import site
-        site.build_site(season)
-        print("[site] rebuilt static site")
+        site.build_all_sites()
+        print("[site] rebuilt static site (all seasons)")
 
 
 if __name__ == "__main__":
