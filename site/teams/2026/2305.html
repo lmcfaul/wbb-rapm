@@ -59,8 +59,9 @@ tr.low-sample td { opacity: .45; }
 .stat { background: var(--panel2); border-radius: 8px; padding: 10px 12px; }
 .stat .v { font-size: 20px; font-weight: 700; } .stat .k { font-size: 11px; color: var(--muted); text-transform: uppercase; }
 #modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 50; }
-#modal { display: none; position: fixed; z-index: 51; top: 8vh; left: 50%; transform: translateX(-50%);
-         width: min(560px, 94vw); background: var(--panel); border: 1px solid var(--border);
+#modal { display: none; position: fixed; z-index: 51; top: 6vh; left: 50%; transform: translateX(-50%);
+         width: min(560px, 94vw); max-height: 86vh; overflow-y: auto;
+         background: var(--panel); border: 1px solid var(--border);
          border-radius: 12px; padding: 22px; }
 #modal .close { position: absolute; top: 10px; right: 14px; cursor: pointer; color: var(--muted); font-size: 20px; }
 .bar { height: 8px; border-radius: 4px; background: var(--panel2); position: relative; margin: 4px 0 10px; }
@@ -75,6 +76,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
   <nav>
     <a href="../../../../index-2026.html" >Leaderboard</a>
     <a href="../../../../teamindex-2026.html" >Teams</a>
+    <a href="../../../../lineups-2026.html" >Lineups</a>
     <a href="../../../../stanford-2026.html" >Stanford</a>
     <a href="../../../../about-2026.html" >About / Validation</a>
   </nav>
@@ -100,13 +102,13 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 </div>
 
 <div class="panel">
-  <h2>Roster by RAPM</h2>
+  <h2>Roster by RAPM <span class="muted small" style="font-weight:400">(click a player for details)</span></h2>
   <table>
     <thead><tr><th>D1 rank</th><th class="l">Player</th><th>Pos</th><th>GP</th><th>Min</th>
       <th>ORAPM</th><th>DRAPM</th><th>RAPM</th></tr></thead>
     <tbody>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5175749)">
         <td class="muted">127</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5175749.png" onerror="this.style.visibility='hidden'">S'Mya Nichols</span></td>
         <td class="pos">G</td>
@@ -117,7 +119,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+8.2</b><span class="sub">raw +10.7 tm -12.6 opp +15.4</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5312764)">
         <td class="muted">229</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5312764.png" onerror="this.style.visibility='hidden'">Jaliya Davis</span></td>
         <td class="pos">F</td>
@@ -128,7 +130,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+6.5</b><span class="sub">raw +11.1 tm -15.0 opp +16.2</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5107835)">
         <td class="muted">343</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5107835.png" onerror="this.style.visibility='hidden'">Lilly Meister</span></td>
         <td class="pos">F</td>
@@ -139,7 +141,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+5.4</b><span class="sub">raw +9.7 tm -14.8 opp +14.6</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5108548)">
         <td class="muted">717</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5108548.png" onerror="this.style.visibility='hidden'">Sania Copeland</span></td>
         <td class="pos">G</td>
@@ -150,7 +152,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+3.3</b><span class="sub">raw +7.1 tm -15.9 opp +15.5</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5175747)">
         <td class="muted">735</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5175747.png" onerror="this.style.visibility='hidden'">Laia Conesa</span></td>
         <td class="pos">G</td>
@@ -161,7 +163,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+3.2</b><span class="sub">raw +7.7 tm -13.6 opp +13.0</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5312762)">
         <td class="muted">1032</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="" onerror="this.style.visibility='hidden'">Libby Fandel</span></td>
         <td class="pos">G</td>
@@ -172,7 +174,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+2.3</b><span class="sub">raw +7.9 tm -17.2 opp +14.5</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5312761)">
         <td class="muted">1217</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5312761.png" onerror="this.style.visibility='hidden'">Keeley Parks</span></td>
         <td class="pos">G</td>
@@ -183,7 +185,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+1.7</b><span class="sub">raw +9.3 tm -14.2 opp +11.5</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5109873)">
         <td class="muted">1340</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5109873.png" onerror="this.style.visibility='hidden'">Elle Evans</span></td>
         <td class="pos">G</td>
@@ -194,7 +196,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+1.5</b><span class="sub">raw +5.7 tm -16.3 opp +13.7</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5239467)">
         <td class="muted">1660</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5239467.png" onerror="this.style.visibility='hidden'">Regan Williams</span></td>
         <td class="pos">F</td>
@@ -205,7 +207,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+0.8</b><span class="sub">raw +3.8 tm -15.4 opp +13.6</span></td>
       </tr>
     
-      <tr class="low-sample">
+      <tr class="player-row low-sample" onclick="openModal(5312763)">
         <td class="muted">1707</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5312763.png" onerror="this.style.visibility='hidden'">Tatyonna Brown<span class="badge">low min</span></span></td>
         <td class="pos">F</td>
@@ -216,7 +218,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-good"><b>+0.7</b><span class="sub">raw +15.0 tm -10.2 opp +4.3</span></td>
       </tr>
     
-      <tr >
+      <tr class="player-row" onclick="openModal(5106181)">
         <td class="muted">2823</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/5106181.png" onerror="this.style.visibility='hidden'">Brittany Harshaw</span></td>
         <td class="pos">G</td>
@@ -227,7 +229,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="num-bad"><b>-1.0</b><span class="sub">raw +0.5 tm -14.7 opp +11.5</span></td>
       </tr>
     
-      <tr class="low-sample">
+      <tr class="player-row low-sample" onclick="openModal(4898993)">
         <td class="muted">3368</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="https://a.espncdn.com/i/headshots/womens-college-basketball/players/full/4898993.png" onerror="this.style.visibility='hidden'">Nadira Eltayeb<span class="badge">low min</span></span></td>
         <td class="pos">C</td>
@@ -302,6 +304,135 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 </main>
 <footer>RAPM = regularized adjusted plus-minus, points per 100 possessions vs average, adjusted for teammates and opponents.<br>
 Data: ESPN via wehoop &middot; season 2025–26</footer>
+
+<div id="modal-backdrop" onclick="closeModal()"></div>
+<div id="modal"></div>
+<script src="../../data/ratings_2026.js"></script>
+<script src="../../data/history.js"></script>
+<script src="../../data/trends_2026.js"></script>
+<script>
+const D = window.WBB_DATA.players;
+const HIST = window.WBB_HISTORY || {};
+const TRENDS = window.WBB_TRENDS || {labels: [], players: {}};
+const seasonLabel = s => (s - 1) + '–' + String(s).slice(2);
+const fmt1 = x => x == null || !isFinite(x) ? '—' : (x >= 0 ? '+' : '') + x.toFixed(1);
+const cls = x => x >= 0 ? 'num-good' : 'num-bad';
+// small muted second line: raw on-court rating + teammate / competition adjustments
+const sub = (p, kind) => `<span class="sub">raw ${fmt1(p['raw_' + kind])} tm ${fmt1(p['tm_' + kind])} opp ${fmt1(p['opp_' + kind])}</span>`;
+
+function breakdownTable(p) {
+  if (p.raw_net == null) return '';
+  const row = (label, k) => `
+    <tr><td class="l muted">${label}</td>
+      <td class="${cls(p[k + '_off'])}">${fmt1(p[k + '_off'])}</td>
+      <td class="${cls(p[k + '_def'])}">${fmt1(p[k + '_def'])}</td>
+      <td class="${cls(p[k + '_net'])}">${fmt1(p[k + '_net'])}</td></tr>`;
+  return `<div style="margin-top:16px"><b class="small">Rating breakdown <span class="muted" style="font-weight:400">(per 100 possessions)</span></b>
+    <table class="small" style="margin-top:6px;font-size:12px"><thead><tr>
+      <th class="l"></th><th>Off</th><th>Def</th><th>Total</th>
+    </tr></thead><tbody>
+      ${row('Raw on-court +/-', 'raw')}
+      ${row('Teammate adjustment', 'tm')}
+      ${row('Competition adjustment', 'opp')}
+      <tr><td class="l muted">RAPM (adjusted)</td>
+        <td class="${cls(p.orapm)}"><b>${fmt1(p.orapm)}</b></td>
+        <td class="${cls(p.drapm)}"><b>${fmt1(p.drapm)}</b></td>
+        <td class="${cls(p.rapm)}"><b>${fmt1(p.rapm)}</b></td></tr>
+    </tbody></table>
+    <div class="sub" style="margin-top:4px">Raw + adjustments &asymp; RAPM; ridge shrinkage means the rows don't sum exactly.</div></div>`;
+}
+
+// season split into three date phases, each refit separately: the trend line
+const TREND_MIN_MINUTES = 30;
+function trendChart(id) {
+  const t = TRENDS.players[String(id)];
+  if (!t || TRENDS.labels.length < 2) return '';
+  const pts = t.map(r => ({phase: r[0], o: r[1], d: r[2], r: r[3], min: r[4]}));
+  if (!pts.some(p => p.min >= TREND_MIN_MINUTES)) return '';
+  const names = ['Early', 'Mid', 'Late'];
+  const W = 320, H = 90, PAD = 26;
+  const vals = pts.map(p => p.r);
+  const lo = Math.min(...vals, 0) - 1, hi = Math.max(...vals, 0) + 1;
+  const x = i => PAD + i * (W - 2 * PAD) / (pts.length - 1);
+  const y = v => H - PAD / 2 - (v - lo) * (H - PAD) / (hi - lo);
+  const solid = pts.filter(p => p.min >= TREND_MIN_MINUTES);
+  const line = solid.map((p, i) => `${i ? 'L' : 'M'}${x(p.phase).toFixed(1)},${y(p.r).toFixed(1)}`).join(' ');
+  const dots = pts.map(p => {
+    const thin = p.min < TREND_MIN_MINUTES;
+    return `<circle cx="${x(p.phase).toFixed(1)}" cy="${y(p.r).toFixed(1)}" r="3.5"
+      fill="${thin ? 'var(--muted)' : (p.r >= 0 ? 'var(--good)' : 'var(--bad)')}" ${thin ? 'opacity=".4"' : ''}/>
+    <text x="${x(p.phase).toFixed(1)}" y="${(y(p.r) - 8).toFixed(1)}" text-anchor="middle"
+      font-size="10" fill="${thin ? 'var(--muted)' : 'var(--text)'}">${fmt1(p.r)}</text>`;
+  }).join('');
+  const cells = pts.map(p => `
+    <td style="text-align:center">
+      <div class="small"><b>${names[p.phase] || 'P' + (p.phase + 1)}</b></div>
+      <div class="sub">${TRENDS.labels[p.phase]}</div>
+      <div class="sub">O ${fmt1(p.o)} · D ${fmt1(p.d)} · ${Math.round(p.min)} min${p.min < TREND_MIN_MINUTES ? ' (thin)' : ''}</div>
+    </td>`).join('');
+  return `<div style="margin-top:16px"><b class="small">Season trend <span class="muted" style="font-weight:400">(RAPM refit on each third of the season)</span></b>
+    <svg width="${W}" height="${H}" style="display:block;margin:4px auto 0">
+      <line x1="${PAD}" x2="${W - PAD}" y1="${y(0)}" y2="${y(0)}" stroke="var(--border)" stroke-dasharray="3 3"/>
+      <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+      ${dots}
+    </svg>
+    <table style="width:100%;margin-top:2px"><tr>${cells}</tr></table>
+    <div class="sub" style="margin-top:2px">Thirds of the season are refit independently; phase ratings shrink harder and are noisier than the full-season number.</div></div>`;
+}
+
+function historyTable(id) {
+  const h = HIST[String(id)];
+  if (!h || h.length < 2) return '';  // single-season history just repeats the stats above
+  const rows = h.slice().sort((a, b) => b.season - a.season).map(r => `
+    <tr${r.season === 2026 ? ' style="background:var(--panel2)"' : ''}>
+      <td class="l">${seasonLabel(r.season)}</td>
+      <td class="l">${r.team || ''}</td>
+      <td>${r.games}</td><td>${Math.round(r.minutes)}</td>
+      <td class="${cls(r.orapm)}">${fmt1(r.orapm)}</td>
+      <td class="${cls(r.drapm)}">${fmt1(r.drapm)}</td>
+      <td class="${cls(r.rapm)}"><b>${fmt1(r.rapm)}</b></td>
+      <td class="muted">#${r.rank}</td>
+    </tr>`).join('');
+  return `<div style="margin-top:16px"><b class="small">Season history</b>
+    <table style="margin-top:6px"><thead><tr>
+      <th class="l">Season</th><th class="l">Team</th><th>GP</th><th>Min</th>
+      <th>ORAPM</th><th>DRAPM</th><th>RAPM</th><th>Rank</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function openModal(id) {
+  const p = D.find(x => x.athlete_id === id);
+  if (!p) return;
+  const span = Math.max(...D.map(x => Math.abs(x.rapm)), 1);
+  const bar = (v) => `<div class="bar"><div class="fill" style="width:${Math.min(Math.abs(v) / span * 100, 100)}%;
+    margin-left:${v < 0 ? (50 - Math.min(Math.abs(v) / span * 50, 50)) : 50}%;
+    background:${v >= 0 ? 'var(--good)' : 'var(--bad)'}"></div></div>`;
+  document.getElementById('modal').innerHTML = `
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div class="pcell" style="gap:14px;margin-bottom:14px">
+      <img src="${p.headshot || ''}" style="width:64px;height:64px" onerror="this.style.visibility='hidden'">
+      <div><b style="font-size:18px">${p.name}</b><br>
+      <span class="muted">${p.team || ''} &middot; ${p.position || ''} &middot; ${p.games} GP &middot; ${Math.round(p.minutes)} min</span></div>
+    </div>
+    <div class="statgrid">
+      <div class="stat"><div class="v ${cls(p.rapm)}">${fmt1(p.rapm)}</div><div class="k">RAPM (rank ${p.rank})</div></div>
+      <div class="stat"><div class="v ${cls(p.orapm)}">${fmt1(p.orapm)}</div><div class="k">Offense</div></div>
+      <div class="stat"><div class="v ${cls(p.drapm)}">${fmt1(p.drapm)}</div><div class="k">Defense</div></div>
+    </div>
+    <div style="margin-top:14px" class="small muted">Offense ${bar(p.orapm)} Defense ${bar(p.drapm)}
+    Margin-model RAPM: <b class="${cls(p.rapm_margin)}">${fmt1(p.rapm_margin)}</b>
+    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the ridge prior; read with care.' : ''}</div>
+    ${trendChart(p.athlete_id)}
+    ${breakdownTable(p)}
+    ${historyTable(p.athlete_id)}`;
+  document.getElementById('modal').style.display = 'block';
+  document.getElementById('modal-backdrop').style.display = 'block';
+}
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+  document.getElementById('modal-backdrop').style.display = 'none';
+}
+</script>
 
 </body>
 </html>

@@ -148,6 +148,15 @@ def main() -> None:
     ratings.to_parquet(paths.ratings)
     print(f"[rapm] wrote {paths.ratings}")
 
+    print("[rapm] fitting season-phase (early/mid/late) ratings ...")
+    game_dates = (
+        player_box.drop_duplicates("game_id").set_index("game_id")["game_date"].astype(str).to_dict()
+    )
+    phases = rapm.fit_phase_ratings(model_stints, col_of, non_d1_col,
+                                    coefs["lam_od"], game_dates)
+    phases.to_parquet(paths.phases)
+    print(f"[rapm] wrote {paths.phases}")
+
     print("[validate] team aggregation sanity check ...")
     team_box = io.load_team_box(paths)
     d1_team_box = team_box[team_box["team_id"].isin(d1_ids)]

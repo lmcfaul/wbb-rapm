@@ -1,0 +1,111 @@
+{% extends "base.html.j2" %}
+{% block title %}Lineup explorer &middot; WBB RAPM {{ season_label }}{% endblock %}
+{% block content %}
+<div class="panel">
+  <h2>Lineup explorer &mdash; {{ season_label }}</h2>
+  <p class="small muted" style="margin-top:-4px">Every 2- to 5-player combination that shared the floor
+  (minimum {{ lineup_min_poss }}&ndash;100 possessions depending on size). Net = points scored minus
+  points allowed per 100 possessions while the group was on court together — raw, not opponent-adjusted.</p>
+  <div class="controls">
+    <label>Team
+      <select id="f-team"></select>
+    </label>
+    <label>Size
+      <select id="f-size">
+        <option value="">All</option>
+        <option value="2">2-player</option>
+        <option value="3">3-player</option>
+        <option value="4">4-player</option>
+        <option value="5">5-player</option>
+      </select>
+    </label>
+    <input type="text" id="f-search" placeholder="Filter by player name...">
+    <label>Min poss <input type="number" id="f-poss" value="100" min="0" step="50" style="width:70px"></label>
+    <span class="muted small" id="f-count"></span>
+  </div>
+  <table id="tbl">
+    <thead><tr>
+      <th data-k="1" data-dir="asc" class="l">Lineup</th>
+      <th data-k="0">Size</th>
+      <th data-k="2">Poss</th>
+      <th data-k="3">Min</th>
+      <th data-k="4">Pts/100</th>
+      <th data-k="5">Opp Pts/100</th>
+      <th data-k="6" class="sorted-desc">Net</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <p class="muted small" id="f-truncated"></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="data/lineups_{{ season }}.js"></script>
+<script>
+const L = window.WBB_LINEUPS;
+const MAX_ROWS = 300;
+const fmt1 = x => (x >= 0 ? '+' : '') + x.toFixed(1);
+const cls = x => x >= 0 ? 'num-good' : 'num-bad';
+let sortKey = 6, sortDir = 'desc';
+
+const teamSel = document.getElementById('f-team');
+teamSel.innerHTML = '<option value="">All teams</option>' +
+  L.teams.map(t => `<option value="${t.id}" ${String(t.id) === '{{ default_team }}' ? 'selected' : ''}>${t.name}</option>`).join('');
+
+const teamName = {}; L.teams.forEach(t => teamName[t.id] = t.name);
+
+function rows() {
+  const tid = teamSel.value;
+  const size = document.getElementById('f-size').value;
+  const q = document.getElementById('f-search').value.toLowerCase();
+  const minP = +document.getElementById('f-poss').value || 0;
+  let out = [];
+  const ids = tid ? [tid] : Object.keys(L.combos);
+  for (const t of ids) {
+    for (const c of (L.combos[t] || [])) {
+      // c = [k, names, poss, min, ortg, drtg, net]
+      if (size && c[0] !== +size) continue;
+      if (c[2] < minP) continue;
+      if (q && !c[1].toLowerCase().includes(q)) continue;
+      out.push([t, ...c]);
+    }
+  }
+  // row = [team_id, k, names, poss, min, ortg, drtg, net]; sortKey indexes into c
+  out.sort((a, b) => {
+    const i = sortKey + 1;
+    const va = a[i], vb = b[i];
+    if (typeof va === 'string') return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortDir === 'asc' ? va - vb : vb - va;
+  });
+  return out;
+}
+
+function render() {
+  const out = rows();
+  document.getElementById('f-count').textContent = out.length + ' lineups';
+  document.getElementById('f-truncated').textContent =
+    out.length > MAX_ROWS ? `Showing top ${MAX_ROWS} of ${out.length} — tighten the filters to see the rest.` : '';
+  document.getElementById('tbody').innerHTML = out.slice(0, MAX_ROWS).map(r => `
+    <tr>
+      <td class="l">${r[2]} <span class="sub">${teamName[r[0]] || ''}</span></td>
+      <td class="muted">${r[1]}</td>
+      <td>${r[3]}</td>
+      <td>${r[4]}</td>
+      <td>${r[5].toFixed(1)}</td>
+      <td>${r[6].toFixed(1)}</td>
+      <td class="${cls(r[7])}"><b>${fmt1(r[7])}</b></td>
+    </tr>`).join('');
+}
+
+document.querySelectorAll('#tbl th').forEach(th => th.addEventListener('click', () => {
+  const k = +th.dataset.k;
+  if (sortKey === k) { sortDir = sortDir === 'desc' ? 'asc' : 'desc'; }
+  else { sortKey = k; sortDir = th.dataset.dir || 'desc'; }
+  document.querySelectorAll('#tbl th').forEach(h => h.classList.remove('sorted-desc', 'sorted-asc'));
+  th.classList.add('sorted-' + sortDir);
+  render();
+}));
+['f-team', 'f-size', 'f-search', 'f-poss'].forEach(id =>
+  document.getElementById(id).addEventListener('input', render));
+render();
+</script>
+{% endblock %}

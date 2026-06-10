@@ -56,7 +56,14 @@ usable games aborts with an explanation. Future seasons: `make season YEAR=2027`
 | 3 Stints | `src/wbbrapm/stints.py` | Constant-lineup 5v5 stints with points + possession proxy (FGA − OREB + TO + 0.44·FTA) |
 | 4 RAPM | `src/wbbrapm/rapm.py` | Sparse ridge: overall margin model + O/D split; λ via GroupKFold CV; non-D1 opponents collapsed to one column |
 | 5 Validate | `src/wbbrapm/validate.py` | Reconstructed minutes vs box minutes (bad games excluded); team-level RAPM vs net margin / win% |
-| 6 Site | `src/wbbrapm/site.py` | Static HTML: leaderboard w/ search-sort-filter + player modal, team pages w/ top lineups, Stanford page, about/validation page, CSV export |
+| 6 Site | `src/wbbrapm/site.py` | Static HTML: leaderboard w/ search-sort-filter, player modal (rating breakdown, season-phase trend chart, multi-year history) on leaderboard *and* team pages, lineup explorer (2- to 5-player combos), team pages w/ top lineups, Stanford page, about/validation page, CSV export |
+
+The player modal's **season trend** splits the season's games into three date-based
+thirds and refits the O/D ridge model on each (same λ), showing Early/Mid/Late RAPM
+with an inline chart; phases under 30 minutes are greyed as thin samples. The
+**lineup explorer** aggregates every 2-, 3-, 4-, and 5-player same-team combination's
+raw on-court numbers (possession floors of 100/75/50/50 by size) with team, size,
+player, and possession filters.
 
 ## Validation (2025–26)
 

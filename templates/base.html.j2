@@ -59,8 +59,9 @@ tr.low-sample td { opacity: .45; }
 .stat { background: var(--panel2); border-radius: 8px; padding: 10px 12px; }
 .stat .v { font-size: 20px; font-weight: 700; } .stat .k { font-size: 11px; color: var(--muted); text-transform: uppercase; }
 #modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 50; }
-#modal { display: none; position: fixed; z-index: 51; top: 8vh; left: 50%; transform: translateX(-50%);
-         width: min(560px, 94vw); background: var(--panel); border: 1px solid var(--border);
+#modal { display: none; position: fixed; z-index: 51; top: 6vh; left: 50%; transform: translateX(-50%);
+         width: min(560px, 94vw); max-height: 86vh; overflow-y: auto;
+         background: var(--panel); border: 1px solid var(--border);
          border-radius: 12px; padding: 22px; }
 #modal .close { position: absolute; top: 10px; right: 14px; cursor: pointer; color: var(--muted); font-size: 20px; }
 .bar { height: 8px; border-radius: 4px; background: var(--panel2); position: relative; margin: 4px 0 10px; }
@@ -75,6 +76,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
   <nav>
     <a href="{{ rel }}{{ nav.index }}" {% if page == 'index' %}class="active"{% endif %}>Leaderboard</a>
     <a href="{{ rel }}{{ nav.teams }}" {% if page == 'teams' %}class="active"{% endif %}>Teams</a>
+    <a href="{{ rel }}{{ nav.lineups }}" {% if page == 'lineups' %}class="active"{% endif %}>Lineups</a>
     <a href="{{ rel }}{{ nav.stanford }}" {% if page == 'stanford' %}class="active"{% endif %}>Stanford</a>
     <a href="{{ rel }}{{ nav.about }}" {% if page == 'about' %}class="active"{% endif %}>About / Validation</a>
   </nav>

@@ -55,6 +55,7 @@ def _page_hrefs(season: int) -> dict[str, str]:
     return {
         "index": f"index-{season}.html",
         "teams": f"teamindex-{season}.html",
+        "lineups": f"lineups-{season}.html",
         "stanford": f"stanford-{season}.html",
         "about": f"about-{season}.html",
     }
@@ -118,6 +119,61 @@ def _top_lineups(stints: pd.DataFrame, team_id: int, names: dict[int, str], top_
         }
         for lineup, row in g.iterrows()
     ]
+
+
+COMBO_MIN_POSS = {2: 100, 3: 75, 4: 50, 5: 50}  # offensive-possession floor per combo size
+
+
+def build_lineup_combos(stints: pd.DataFrame, ratings: pd.DataFrame) -> dict:
+    """Aggregate every 2- to 5-player same-team combination's on-court numbers.
+
+    Returns {"teams": [...], "combos": {team_id: [[k, names, poss, min, ortg, drtg, net], ...]}}
+    filtered by per-size possession floors to keep the data file manageable.
+    """
+    from itertools import combinations
+
+    last_names = {
+        int(a): str(n).split()[-1] for a, n in zip(ratings["athlete_id"], ratings["name"])
+    }
+    agg: dict[tuple, list] = {}  # (team_id, combo) -> [sec, pf, pa, own_poss, opp_poss]
+    for s in stints.itertuples(index=False):
+        sides = [
+            (s.home_team_id, s.home_lineup, s.home_pts, s.away_pts, s.home_poss, s.away_poss),
+            (s.away_team_id, s.away_lineup, s.away_pts, s.home_pts, s.away_poss, s.home_poss),
+        ]
+        for tid, lineup, pf, pa, own, opp in sides:
+            five = sorted(int(a) for a in lineup)
+            for k in (2, 3, 4, 5):
+                for combo in combinations(five, k):
+                    a = agg.setdefault((tid, combo), [0.0, 0.0, 0.0, 0.0, 0.0])
+                    a[0] += s.seconds; a[1] += pf; a[2] += pa; a[3] += own; a[4] += opp
+
+    team_names = (
+        ratings.dropna(subset=["team_id", "team"])
+        .drop_duplicates("team_id")[["team_id", "team"]]
+        .astype({"team_id": int})
+    )
+    name_of_team = dict(zip(team_names["team_id"], team_names["team"]))
+
+    combos: dict[int, list] = {}
+    for (tid, combo), (sec, pf, pa, own, opp) in agg.items():
+        k = len(combo)
+        if own < COMBO_MIN_POSS[k] or opp < COMBO_MIN_POSS[k] or tid not in name_of_team:
+            continue
+        ortg = 100.0 * pf / own
+        drtg = 100.0 * pa / opp
+        names = " · ".join(sorted(last_names.get(a, str(a)) for a in combo))
+        combos.setdefault(int(tid), []).append([
+            k, names, round((own + opp) / 2), round(sec / 60),
+            round(ortg, 1), round(drtg, 1), round(ortg - drtg, 1),
+        ])
+    for tid in combos:
+        combos[tid].sort(key=lambda r: -r[6])
+    teams = sorted(
+        ({"id": t, "name": name_of_team[t]} for t in combos),
+        key=lambda d: d["name"],
+    )
+    return {"teams": teams, "combos": combos}
 
 
 def build_history() -> None:
@@ -195,6 +251,29 @@ def build_site(season: int) -> None:
         SITE_DIR / "data" / f"ratings_{season}.csv", index=False
     )
 
+    # season-phase trends for the player modal
+    trends: dict[str, list] = {}
+    phase_labels: list[str] = []
+    if paths.phases.exists():
+        ph = pd.read_parquet(paths.phases)
+        labels = ph.drop_duplicates("phase").sort_values("phase")
+        phase_labels = [f"{r.start} – {r.end}" for r in labels.itertuples(index=False)]
+        for aid, grp in ph.sort_values("phase").groupby("athlete_id"):
+            trends[str(int(aid))] = [
+                [int(r.phase), round(r.orapm, 2), round(r.drapm, 2),
+                 round(r.rapm, 2), round(r.minutes, 1)]
+                for r in grp.itertuples(index=False)
+            ]
+    (SITE_DIR / "data" / f"trends_{season}.js").write_text(
+        "window.WBB_TRENDS = " + json.dumps({"labels": phase_labels, "players": trends}) + ";"
+    )
+
+    # 2- to 5-player lineup combinations for the explorer page
+    lineup_data = build_lineup_combos(stints, ratings)
+    (SITE_DIR / "data" / f"lineups_{season}.js").write_text(
+        "window.WBB_LINEUPS = " + json.dumps(lineup_data) + ";"
+    )
+
     is_latest = season == max(available_seasons())
     hrefs = _page_hrefs(season)
     team_pages = _rated_team_ids()
@@ -236,7 +315,7 @@ def build_site(season: int) -> None:
     summaries = _team_summaries(ratings, team_box, teams_ref)
     n_teams = len(summaries)
     names = dict(zip(ratings["athlete_id"], ratings["name"]))
-    roster_cols = ["rank", "name", "position", "headshot", "games", "minutes",
+    roster_cols = ["athlete_id", "rank", "name", "position", "headshot", "games", "minutes",
                    "orapm", "drapm", "rapm", "low_sample"] + \
                   [c for c in DECOMP_COLS if c in ratings.columns]
 
@@ -245,6 +324,16 @@ def build_site(season: int) -> None:
         season_switch=_season_switch(season, "teams", ""), **common
     )
     write(hrefs["teams"], teamindex_html, "teamindex.html")
+
+    # --- lineup explorer ---
+    stanford_team_id = next(
+        (t["id"] for t in lineup_data["teams"] if t["name"] == STANFORD_TEAM_NAME), ""
+    )
+    lineups_html = env.get_template("lineups.html.j2").render(
+        page="lineups", rel="", nav=hrefs, default_team=stanford_team_id,
+        season_switch=_season_switch(season, "lineups", ""), **common
+    )
+    write(hrefs["lineups"], lineups_html, "lineups.html")
 
     team_tpl = env.get_template("team.html.j2")
     nav_up = {k: "../../" + v for k, v in hrefs.items()}

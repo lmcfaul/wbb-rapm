@@ -137,6 +137,52 @@ def fit_models(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, lam_od
     return coefs
 
 
+def fit_phase_ratings(
+    stints: pd.DataFrame,
+    col_of,
+    non_d1_col,
+    lam_od: float,
+    game_dates: dict[int, str],
+    n_phases: int = 3,
+) -> pd.DataFrame:
+    """Refit the O/D model on date-based thirds of the season.
+
+    Games are sorted by date and split into n_phases equal-count groups; each
+    phase gets its own ridge fit (same lambda as the full model, so phase
+    ratings are comparable but noisier - a third of the data shrinks harder).
+    Returns one row per (athlete, phase) with phase minutes for the UI to
+    grey out thin samples.
+    """
+    games = sorted(
+        (g for g in stints["game_id"].unique() if g in game_dates),
+        key=lambda g: game_dates[g],
+    )
+    rows = []
+    for phase, gs in enumerate(np.array_split(np.array(games), n_phases)):
+        sub = stints[stints["game_id"].isin(set(gs))]
+        Xo, yo, wo, _ = build_od_system(sub, col_of, non_d1_col)
+        m = _fit(Xo, yo, wo, lam_od)
+        n_players = non_d1_col + 1
+        o = m.coef_[:n_players]
+        d = -m.coef_[n_players: 2 * n_players]
+
+        seconds: dict[int, float] = {}
+        for s in sub.itertuples(index=False):
+            for lineup in (s.home_lineup, s.away_lineup):
+                for a in lineup:
+                    seconds[int(a)] = seconds.get(int(a), 0.0) + s.seconds
+
+        start, end = game_dates[gs[0]][:10], game_dates[gs[-1]][:10]
+        for a, c in col_of.items():
+            rows.append({
+                "athlete_id": a, "phase": phase, "start": start, "end": end,
+                "orapm": float(o[c]), "drapm": float(d[c]),
+                "rapm": float(o[c] + d[c]),
+                "minutes": seconds.get(a, 0.0) / 60.0,
+            })
+    return pd.DataFrame(rows)
+
+
 def decompose_ratings(stints: pd.DataFrame, col_of, non_d1_col, coefs) -> dict[str, np.ndarray]:
     """Split each player's rating into raw on-court production plus the
     adjustments the model applies for teammates and competition.

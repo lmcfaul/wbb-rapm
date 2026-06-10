@@ -81,6 +81,10 @@ class SeasonPaths:
         return PROCESSED_DIR / f"ratings_{self.season}.parquet"
 
     @property
+    def phases(self) -> Path:
+        return PROCESSED_DIR / f"phases_{self.season}.parquet"
+
+    @property
     def lineup_report(self) -> Path:
         return PROCESSED_DIR / f"lineup_qa_{self.season}.json"
 

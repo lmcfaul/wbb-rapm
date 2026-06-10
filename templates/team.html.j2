@@ -19,13 +19,13 @@
 </div>
 
 <div class="panel">
-  <h2>Roster by RAPM</h2>
+  <h2>Roster by RAPM <span class="muted small" style="font-weight:400">(click a player for details)</span></h2>
   <table>
     <thead><tr><th>D1 rank</th><th class="l">Player</th><th>Pos</th><th>GP</th><th>Min</th>
       <th>ORAPM</th><th>DRAPM</th><th>RAPM</th></tr></thead>
     <tbody>
     {% for p in team.players %}
-      <tr {% if p.low_sample %}class="low-sample"{% endif %}>
+      <tr class="player-row{% if p.low_sample %} low-sample{% endif %}" onclick="openModal({{ p.athlete_id }})">
         <td class="muted">{{ p.rank }}</td>
         <td class="l"><span class="pcell"><img loading="lazy" src="{{ p.headshot or '' }}" onerror="this.style.visibility='hidden'">{{ p.name }}{% if p.low_sample %}<span class="badge">low min</span>{% endif %}</span></td>
         <td class="pos">{{ p.position or '' }}</td>
@@ -60,4 +60,7 @@
   </table>
 </div>
 {% endif %}
+{% endblock %}
+{% block scripts %}
+{% include "_modal.html.j2" %}
 {% endblock %}
