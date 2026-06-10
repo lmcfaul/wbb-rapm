@@ -31,9 +31,9 @@
         <td class="pos">{{ p.position or '' }}</td>
         <td>{{ p.games }}</td>
         <td>{{ p.minutes|round|int }}</td>
-        <td class="{{ 'num-good' if p.orapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(p.orapm) }}</td>
-        <td class="{{ 'num-good' if p.drapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(p.drapm) }}</td>
-        <td class="{{ 'num-good' if p.rapm >= 0 else 'num-bad' }}"><b>{{ '%+.1f'|format(p.rapm) }}</b></td>
+        <td class="{{ 'num-good' if p.orapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(p.orapm) }}{% if p.raw_off is defined and p.raw_off == p.raw_off %}<span class="sub">raw {{ '%+.1f'|format(p.raw_off) }} tm {{ '%+.1f'|format(p.tm_off) }} opp {{ '%+.1f'|format(p.opp_off) }}</span>{% endif %}</td>
+        <td class="{{ 'num-good' if p.drapm >= 0 else 'num-bad' }}">{{ '%+.1f'|format(p.drapm) }}{% if p.raw_def is defined and p.raw_def == p.raw_def %}<span class="sub">raw {{ '%+.1f'|format(p.raw_def) }} tm {{ '%+.1f'|format(p.tm_def) }} opp {{ '%+.1f'|format(p.opp_def) }}</span>{% endif %}</td>
+        <td class="{{ 'num-good' if p.rapm >= 0 else 'num-bad' }}"><b>{{ '%+.1f'|format(p.rapm) }}</b>{% if p.raw_net is defined and p.raw_net == p.raw_net %}<span class="sub">raw {{ '%+.1f'|format(p.raw_net) }} tm {{ '%+.1f'|format(p.tm_net) }} opp {{ '%+.1f'|format(p.opp_net) }}</span>{% endif %}</td>
       </tr>
     {% endfor %}
     </tbody>

@@ -50,6 +50,8 @@ tr.low-sample td { opacity: .45; }
 .tcell img { border-radius: 4px; width: 20px; height: 20px; }
 .pos { color: var(--muted); }
 .num-good { color: var(--good); } .num-bad { color: var(--bad); }
+.sub { display: block; font-size: 10px; font-weight: 400; color: var(--muted);
+       letter-spacing: .2px; margin-top: 1px; opacity: .85; }
 .muted { color: var(--muted); } .small { font-size: 12px; }
 .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--panel2);
          color: var(--muted); border: 1px solid var(--border); margin-left: 6px; }
@@ -98,6 +100,13 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
   offense), giving each player separate offensive and defensive impacts; RAPM = ORAPM + DRAPM.
   Non-D1 opponents (exhibitions, buy games) are collapsed into a single shared column so they
   cannot distort D1 ratings.</p>
+  <p>The small grey numbers under each rating decompose it:
+  <b>raw</b> is the player's unadjusted on-court plus-minus per 100 possessions vs the
+  D1 average; <b>tm</b> is the adjustment for the teammates she played with (negative
+  when good teammates inflated her raw number); <b>opp</b> is the adjustment for the
+  competition she faced (positive when a tough schedule deflated it). Raw + tm + opp
+  &asymp; RAPM &mdash; the rows don't sum exactly because ridge shrinkage and home-court
+  are not redistributed.</p>
   <p class="muted small">Caveat: players who almost always share the floor (or almost never
   play apart from a star) are hard to separate statistically; ridge keeps them stable but
   their O/D splits deserve skepticism.</p>

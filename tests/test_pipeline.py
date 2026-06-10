@@ -118,6 +118,25 @@ def test_rapm_recovers_star_and_shrinks():
     assert od[101] == max(od.values())
 
 
+def test_decomposition_semantics():
+    sd = _synthetic_stints()
+    athlete_team = {a: 1 for a in (101, 102, 103, 104, 105, 106)} | {a: 2 for a in (201, 202, 203, 204, 205)}
+    col_of, non_d1, players = rapm.build_player_index(sd, athlete_team, {1, 2})
+    coefs = rapm.fit_models(sd, col_of, non_d1, lam_margin=50.0, lam_od=50.0, verbose=False)
+    dec = rapm.decompose_ratings(sd, col_of, non_d1, coefs)
+    by = {k: dict(zip(players, dec[k])) for k in rapm.DECOMP_COLS}
+    # player 102 is on court for every stint (raw_net ~ +5, half with the star);
+    # the teammate adjustment must strip the star's contribution (negative;
+    # collinearity in this fixture mutes how much credit the model gives the star)
+    assert by["raw_net"][102] == pytest.approx(5.0, abs=1.5)
+    assert by["tm_net"][102] < -1.0
+    # raw + teammate adj + competition adj approximately recovers RAPM
+    rapm_od = dict(zip(players, coefs["orapm"] + coefs["drapm"]))
+    for a in (101, 102, 201):
+        approx = by["raw_net"][a] + by["tm_net"][a] + by["opp_net"][a]
+        assert abs(approx - rapm_od[a]) < 2.5, (a, approx, rapm_od[a])
+
+
 def test_ridge_shrinks_low_sample_players():
     sd = _synthetic_stints()
     # give player 999 one lucky 1-stint cameo (+20 margin in 10 possessions,

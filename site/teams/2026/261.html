@@ -50,6 +50,8 @@ tr.low-sample td { opacity: .45; }
 .tcell img { border-radius: 4px; width: 20px; height: 20px; }
 .pos { color: var(--muted); }
 .num-good { color: var(--good); } .num-bad { color: var(--bad); }
+.sub { display: block; font-size: 10px; font-weight: 400; color: var(--muted);
+       letter-spacing: .2px; margin-top: 1px; opacity: .85; }
 .muted { color: var(--muted); } .small { font-size: 12px; }
 .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--panel2);
          color: var(--muted); border: 1px solid var(--border); margin-left: 6px; }
@@ -110,9 +112,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>35</td>
         <td>1124</td>
-        <td class="num-good">+3.8</td>
-        <td class="num-good">+3.6</td>
-        <td class="num-good"><b>+7.5</b></td>
+        <td class="num-good">+3.8<span class="sub">raw +12.9 tm -8.1 opp +0.3</span></td>
+        <td class="num-good">+3.6<span class="sub">raw +11.9 tm -6.3 opp +1.2</span></td>
+        <td class="num-good"><b>+7.5</b><span class="sub">raw +24.8 tm -14.4 opp +1.4</span></td>
       </tr>
     
       <tr >
@@ -121,9 +123,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>35</td>
         <td>1215</td>
-        <td class="num-good">+4.3</td>
-        <td class="num-good">+3.0</td>
-        <td class="num-good"><b>+7.3</b></td>
+        <td class="num-good">+4.3<span class="sub">raw +12.6 tm -7.5 opp +0.5</span></td>
+        <td class="num-good">+3.0<span class="sub">raw +10.2 tm -6.6 opp +2.1</span></td>
+        <td class="num-good"><b>+7.3</b><span class="sub">raw +22.8 tm -14.0 opp +2.6</span></td>
       </tr>
     
       <tr >
@@ -132,9 +134,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>35</td>
         <td>1101</td>
-        <td class="num-good">+3.2</td>
-        <td class="num-good">+3.7</td>
-        <td class="num-good"><b>+6.9</b></td>
+        <td class="num-good">+3.2<span class="sub">raw +12.5 tm -8.8 opp +0.4</span></td>
+        <td class="num-good">+3.7<span class="sub">raw +12.0 tm -6.3 opp +1.5</span></td>
+        <td class="num-good"><b>+6.9</b><span class="sub">raw +24.5 tm -15.1 opp +1.9</span></td>
       </tr>
     
       <tr >
@@ -143,9 +145,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">C</td>
         <td>35</td>
         <td>1199</td>
-        <td class="num-good">+2.4</td>
-        <td class="num-good">+2.0</td>
-        <td class="num-good"><b>+4.4</b></td>
+        <td class="num-good">+2.4<span class="sub">raw +11.4 tm -9.1 opp +0.4</span></td>
+        <td class="num-good">+2.0<span class="sub">raw +9.7 tm -7.5 opp +2.0</span></td>
+        <td class="num-good"><b>+4.4</b><span class="sub">raw +21.1 tm -16.7 opp +2.4</span></td>
       </tr>
     
       <tr class="low-sample">
@@ -154,9 +156,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">F</td>
         <td>3</td>
         <td>12</td>
-        <td class="num-good">+0.8</td>
-        <td class="num-good">+0.4</td>
-        <td class="num-good"><b>+1.2</b></td>
+        <td class="num-good">+0.8<span class="sub">raw +57.8 tm -2.6 opp -16.8</span></td>
+        <td class="num-good">+0.4<span class="sub">raw +40.7 tm +2.0 opp -18.6</span></td>
+        <td class="num-good"><b>+1.2</b><span class="sub">raw +98.6 tm -0.7 opp -35.4</span></td>
       </tr>
     
       <tr class="low-sample">
@@ -165,9 +167,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>2</td>
         <td>10</td>
-        <td class="num-good">+0.6</td>
-        <td class="num-good">+0.4</td>
-        <td class="num-good"><b>+0.9</b></td>
+        <td class="num-good">+0.6<span class="sub">raw +56.9 tm +0.2 opp -23.9</span></td>
+        <td class="num-good">+0.4<span class="sub">raw +46.0 tm +2.6 opp -25.4</span></td>
+        <td class="num-good"><b>+0.9</b><span class="sub">raw +102.9 tm +2.8 opp -49.3</span></td>
       </tr>
     
       <tr class="low-sample">
@@ -176,9 +178,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>12</td>
         <td>40</td>
-        <td class="num-good">+0.7</td>
-        <td class="num-bad">-0.0</td>
-        <td class="num-good"><b>+0.6</b></td>
+        <td class="num-good">+0.7<span class="sub">raw +21.9 tm -0.8 opp -10.0</span></td>
+        <td class="num-bad">-0.0<span class="sub">raw +8.8 tm +3.9 opp -11.7</span></td>
+        <td class="num-good"><b>+0.6</b><span class="sub">raw +30.7 tm +3.0 opp -21.8</span></td>
       </tr>
     
       <tr >
@@ -187,9 +189,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>34</td>
         <td>498</td>
-        <td class="num-good">+1.4</td>
-        <td class="num-bad">-0.9</td>
-        <td class="num-good"><b>+0.5</b></td>
+        <td class="num-good">+1.4<span class="sub">raw +12.3 tm -8.7 opp -1.7</span></td>
+        <td class="num-bad">-0.9<span class="sub">raw +6.6 tm -6.5 opp -1.2</span></td>
+        <td class="num-good"><b>+0.5</b><span class="sub">raw +18.8 tm -15.2 opp -2.9</span></td>
       </tr>
     
       <tr class="low-sample">
@@ -198,9 +200,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>11</td>
         <td>30</td>
-        <td class="num-bad">-0.4</td>
-        <td class="num-good">+0.8</td>
-        <td class="num-good"><b>+0.4</b></td>
+        <td class="num-bad">-0.4<span class="sub">raw +3.0 tm -1.2 opp -12.2</span></td>
+        <td class="num-good">+0.8<span class="sub">raw +28.3 tm +4.3 opp -13.5</span></td>
+        <td class="num-good"><b>+0.4</b><span class="sub">raw +31.3 tm +3.2 opp -25.7</span></td>
       </tr>
     
       <tr >
@@ -209,9 +211,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">F</td>
         <td>33</td>
         <td>321</td>
-        <td class="num-good">+1.2</td>
-        <td class="num-bad">-1.7</td>
-        <td class="num-bad"><b>-0.5</b></td>
+        <td class="num-good">+1.2<span class="sub">raw +12.7 tm -6.7 opp -3.6</span></td>
+        <td class="num-bad">-1.7<span class="sub">raw +3.1 tm -4.6 opp -2.3</span></td>
+        <td class="num-bad"><b>-0.5</b><span class="sub">raw +15.8 tm -11.3 opp -6.0</span></td>
       </tr>
     
       <tr >
@@ -220,9 +222,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>10</td>
         <td>298</td>
-        <td class="num-bad">-0.7</td>
-        <td class="num-bad">-0.2</td>
-        <td class="num-bad"><b>-0.9</b></td>
+        <td class="num-bad">-0.7<span class="sub">raw +9.6 tm -10.5 opp -1.9</span></td>
+        <td class="num-bad">-0.2<span class="sub">raw +6.9 tm -8.2 opp +2.2</span></td>
+        <td class="num-bad"><b>-0.9</b><span class="sub">raw +16.5 tm -18.8 opp +0.2</span></td>
       </tr>
     
       <tr class="low-sample">
@@ -231,9 +233,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">F</td>
         <td>18</td>
         <td>85</td>
-        <td class="num-bad">-0.1</td>
-        <td class="num-bad">-1.6</td>
-        <td class="num-bad"><b>-1.7</b></td>
+        <td class="num-bad">-0.1<span class="sub">raw +10.2 tm -3.1 opp -9.1</span></td>
+        <td class="num-bad">-1.6<span class="sub">raw -2.4 tm +0.4 opp -9.9</span></td>
+        <td class="num-bad"><b>-1.7</b><span class="sub">raw +7.8 tm -2.7 opp -19.0</span></td>
       </tr>
     
       <tr class="low-sample">
@@ -242,9 +244,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>20</td>
         <td>109</td>
-        <td class="num-bad">-0.3</td>
-        <td class="num-bad">-1.8</td>
-        <td class="num-bad"><b>-2.1</b></td>
+        <td class="num-bad">-0.3<span class="sub">raw +10.1 tm -3.9 opp -9.0</span></td>
+        <td class="num-bad">-1.8<span class="sub">raw -0.9 tm +0.2 opp -9.4</span></td>
+        <td class="num-bad"><b>-2.1</b><span class="sub">raw +9.2 tm -3.7 opp -18.5</span></td>
       </tr>
     
       <tr >
@@ -253,9 +255,9 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
         <td class="pos">G</td>
         <td>35</td>
         <td>1004</td>
-        <td class="num-bad">-1.4</td>
-        <td class="num-bad">-1.0</td>
-        <td class="num-bad"><b>-2.4</b></td>
+        <td class="num-bad">-1.4<span class="sub">raw +8.6 tm -11.8 opp -0.1</span></td>
+        <td class="num-bad">-1.0<span class="sub">raw +7.9 tm -9.2 opp +0.8</span></td>
+        <td class="num-bad"><b>-2.4</b><span class="sub">raw +16.5 tm -21.0 opp +0.7</span></td>
       </tr>
     
     </tbody>

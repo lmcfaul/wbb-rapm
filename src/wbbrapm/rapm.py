@@ -137,12 +137,81 @@ def fit_models(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, lam_od
     return coefs
 
 
+def decompose_ratings(stints: pd.DataFrame, col_of, non_d1_col, coefs) -> dict[str, np.ndarray]:
+    """Split each player's rating into raw on-court production plus the
+    adjustments the model applies for teammates and competition.
+
+    Using the O/D model (offense points per 100 ~ intercept + sum O_off + sum D_def):
+
+        ORAPM_i ~ raw_off_i + tm_off_i + opp_off_i
+        DRAPM_i ~ raw_def_i + tm_def_i + opp_def_i
+
+    raw_*: the player's on-court rating vs league average; tm_*: minus the
+    (possession-weighted) quality of teammates she shared the floor with;
+    opp_*: plus the quality of the opposition she faced. Approximate, not an
+    exact identity - ridge shrinkage and home-court are not redistributed.
+    """
+    n_players = non_d1_col + 1
+    O = np.asarray(coefs["orapm"], dtype=float)
+    D = -np.asarray(coefs["drapm"], dtype=float)  # back to points-allowed sign
+
+    off_poss = np.zeros(n_players); off_pts = np.zeros(n_players)
+    def_poss = np.zeros(n_players); def_pts = np.zeros(n_players)
+    tm_o = np.zeros(n_players); opp_d = np.zeros(n_players)
+    tm_d = np.zeros(n_players); opp_o = np.zeros(n_players)
+    tot_pts = tot_poss = 0.0
+
+    for s in stints.itertuples(index=False):
+        sides = [
+            (s.home_lineup, s.away_lineup, s.home_pts, s.home_poss),
+            (s.away_lineup, s.home_lineup, s.away_pts, s.away_poss),
+        ]
+        for off, deff, pts, poss in sides:
+            if poss <= 0:
+                continue
+            c_off = _lineup_cols(off, col_of, non_d1_col)
+            c_def = _lineup_cols(deff, col_of, non_d1_col)
+            sum_o = sum(O[c] for c in c_off)
+            sum_d = sum(D[c] for c in c_def)
+            tot_pts += pts; tot_poss += poss
+            for c in c_off:
+                off_poss[c] += poss; off_pts[c] += pts
+                tm_o[c] += poss * (sum_o - O[c])
+                opp_d[c] += poss * sum_d
+            for c in c_def:
+                def_poss[c] += poss; def_pts[c] += pts
+                tm_d[c] += poss * (sum_d - D[c])
+                opp_o[c] += poss * sum_o
+
+    league_avg = 100.0 * tot_pts / tot_poss
+    with np.errstate(divide="ignore", invalid="ignore"):
+        raw_off = 100.0 * off_pts / off_poss - league_avg
+        raw_def = league_avg - 100.0 * def_pts / def_poss
+        out = {
+            "raw_off": raw_off,
+            "raw_def": raw_def,
+            "raw_net": raw_off + raw_def,
+            "tm_off": -tm_o / off_poss,
+            "tm_def": tm_d / def_poss,
+            "opp_off": -opp_d / off_poss,
+            "opp_def": opp_o / def_poss,
+        }
+    out["tm_net"] = out["tm_off"] + out["tm_def"]
+    out["opp_net"] = out["opp_off"] + out["opp_def"]
+    return out
+
+
+DECOMP_COLS = ["raw_off", "raw_def", "raw_net", "tm_off", "tm_def", "tm_net",
+               "opp_off", "opp_def", "opp_net"]
+
+
 def assemble_ratings(
     coefs: dict,
     d1_players: list[int],
     player_seconds: dict[int, float],
     player_box: pd.DataFrame,
     season: int,
+    decomp: dict[str, np.ndarray] | None = None,
 ) -> pd.DataFrame:
     """Join coefficients with identity/minutes metadata for output + site."""
     played = player_box[~player_box["did_not_play"].fillna(False)]
@@ -169,6 +238,9 @@ def assemble_ratings(
     df["orapm"] = [coefs["orapm"][idx[a]] for a in d1_players]
     df["drapm"] = [coefs["drapm"][idx[a]] for a in d1_players]
     df["rapm"] = df["orapm"] + df["drapm"]
+    if decomp is not None:
+        for k in DECOMP_COLS:
+            df[k] = [decomp[k][idx[a]] for a in d1_players]
     df["minutes"] = [player_seconds.get(a, 0.0) / 60.0 for a in d1_players]
     df = df.merge(meta, on="athlete_id", how="left")
     df["season"] = season

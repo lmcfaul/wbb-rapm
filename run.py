@@ -142,7 +142,9 @@ def main() -> None:
 
     coefs = rapm.fit_models(model_stints, col_of, non_d1_col,
                             lam_margin=args.lam_margin, lam_od=args.lam_od)
-    ratings = rapm.assemble_ratings(coefs, d1_players, player_seconds, player_box, season)
+    decomp = rapm.decompose_ratings(model_stints, col_of, non_d1_col, coefs)
+    ratings = rapm.assemble_ratings(coefs, d1_players, player_seconds, player_box, season,
+                                    decomp=decomp)
     ratings.to_parquet(paths.ratings)
     print(f"[rapm] wrote {paths.ratings}")
 

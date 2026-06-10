@@ -28,10 +28,12 @@ from .config import (
 )
 
 LINEUP_MIN_POSS = 50
+DECOMP_COLS = ["raw_off", "raw_def", "raw_net", "tm_off", "tm_def", "tm_net",
+               "opp_off", "opp_def", "opp_net"]
 PLAYER_JS_COLS = [
     "athlete_id", "name", "team", "team_logo", "position", "headshot",
     "games", "minutes", "orapm", "drapm", "rapm", "rapm_margin", "rank", "low_sample",
-]
+] + DECOMP_COLS
 HISTORY_COLS = ["season", "team", "games", "minutes", "orapm", "drapm", "rapm", "rank"]
 
 
@@ -180,9 +182,10 @@ def build_site(season: int) -> None:
     (SITE_DIR / "teams" / str(season)).mkdir(parents=True, exist_ok=True)
 
     # --- data files (JS for the table, CSV for download) ---
-    js_df = ratings[PLAYER_JS_COLS].copy()
-    for c in ("orapm", "drapm", "rapm", "rapm_margin", "minutes"):
-        js_df[c] = js_df[c].astype(float).round(2)
+    js_df = ratings[[c for c in PLAYER_JS_COLS if c in ratings.columns]].copy()
+    for c in ["orapm", "drapm", "rapm", "rapm_margin", "minutes"] + DECOMP_COLS:
+        if c in js_df.columns:
+            js_df[c] = js_df[c].astype(float).round(2)
     js_df = js_df.where(js_df.notna(), None)
     payload = {"season": season, "players": js_df.to_dict(orient="records")}
     (SITE_DIR / "data" / f"ratings_{season}.js").write_text(
@@ -234,7 +237,8 @@ def build_site(season: int) -> None:
     n_teams = len(summaries)
     names = dict(zip(ratings["athlete_id"], ratings["name"]))
     roster_cols = ["rank", "name", "position", "headshot", "games", "minutes",
-                   "orapm", "drapm", "rapm", "low_sample"]
+                   "orapm", "drapm", "rapm", "low_sample"] + \
+                  [c for c in DECOMP_COLS if c in ratings.columns]
 
     teamindex_html = env.get_template("teamindex.html.j2").render(
         page="teams", rel="", nav=hrefs, teams=summaries.to_dict(orient="records"),

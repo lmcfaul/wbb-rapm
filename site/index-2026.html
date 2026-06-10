@@ -50,6 +50,8 @@ tr.low-sample td { opacity: .45; }
 .tcell img { border-radius: 4px; width: 20px; height: 20px; }
 .pos { color: var(--muted); }
 .num-good { color: var(--good); } .num-bad { color: var(--bad); }
+.sub { display: block; font-size: 10px; font-weight: 400; color: var(--muted);
+       letter-spacing: .2px; margin-top: 1px; opacity: .85; }
 .muted { color: var(--muted); } .small { font-size: 12px; }
 .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: var(--panel2);
          color: var(--muted); border: 1px solid var(--border); margin-left: 6px; }
@@ -123,8 +125,10 @@ Data: ESPN via wehoop &middot; season 2025–26</footer>
 const D = window.WBB_DATA.players;
 const HIST = window.WBB_HISTORY || {};
 const seasonLabel = s => (s - 1) + '–' + String(s).slice(2);
-const fmt1 = x => (x >= 0 ? '+' : '') + x.toFixed(1);
+const fmt1 = x => x == null || !isFinite(x) ? '—' : (x >= 0 ? '+' : '') + x.toFixed(1);
 const cls = x => x >= 0 ? 'num-good' : 'num-bad';
+// small muted second line: raw on-court rating + teammate / competition adjustments
+const sub = (p, kind) => `<span class="sub">raw ${fmt1(p['raw_' + kind])} tm ${fmt1(p['tm_' + kind])} opp ${fmt1(p['opp_' + kind])}</span>`;
 let sortKey = 'rapm', sortDir = 'desc';
 
 function rows() {
@@ -156,9 +160,9 @@ function render() {
       <td class="pos">${p.position || ''}</td>
       <td>${p.games}</td>
       <td>${Math.round(p.minutes)}</td>
-      <td class="${cls(p.orapm)}">${fmt1(p.orapm)}</td>
-      <td class="${cls(p.drapm)}">${fmt1(p.drapm)}</td>
-      <td class="${cls(p.rapm)}"><b>${fmt1(p.rapm)}</b></td>
+      <td class="${cls(p.orapm)}">${fmt1(p.orapm)}${sub(p, 'off')}</td>
+      <td class="${cls(p.drapm)}">${fmt1(p.drapm)}${sub(p, 'def')}</td>
+      <td class="${cls(p.rapm)}"><b>${fmt1(p.rapm)}</b>${sub(p, 'net')}</td>
     </tr>`).join('');
 }
 
@@ -194,10 +198,33 @@ function openModal(id) {
     <div style="margin-top:14px" class="small muted">Offense ${bar(p.orapm)} Defense ${bar(p.drapm)}
     Margin-model RAPM: <b class="${cls(p.rapm_margin)}">${fmt1(p.rapm_margin)}</b>
     ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the ridge prior; read with care.' : ''}</div>
+    ${breakdownTable(p)}
     ${historyTable(p.athlete_id)}`;
   document.getElementById('modal').style.display = 'block';
   document.getElementById('modal-backdrop').style.display = 'block';
 }
+function breakdownTable(p) {
+  if (p.raw_net == null) return '';
+  const row = (label, k, bold) => `
+    <tr><td class="l muted">${label}</td>
+      <td class="${cls(p[k + '_off'])}">${bold ? '<b>' : ''}${fmt1(p[k + '_off'])}${bold ? '</b>' : ''}</td>
+      <td class="${cls(p[k + '_def'])}">${bold ? '<b>' : ''}${fmt1(p[k + '_def'])}${bold ? '</b>' : ''}</td>
+      <td class="${cls(p[k + '_net'])}">${bold ? '<b>' : ''}${fmt1(p[k + '_net'])}${bold ? '</b>' : ''}</td></tr>`;
+  return `<div style="margin-top:16px"><b class="small">Rating breakdown <span class="muted" style="font-weight:400">(per 100 possessions)</span></b>
+    <table class="small" style="margin-top:6px;font-size:12px"><thead><tr>
+      <th class="l"></th><th>Off</th><th>Def</th><th>Total</th>
+    </tr></thead><tbody>
+      ${row('Raw on-court +/-', 'raw')}
+      ${row('Teammate adjustment', 'tm')}
+      ${row('Competition adjustment', 'opp')}
+      <tr><td class="l muted">RAPM (adjusted)</td>
+        <td class="${cls(p.orapm)}"><b>${fmt1(p.orapm)}</b></td>
+        <td class="${cls(p.drapm)}"><b>${fmt1(p.drapm)}</b></td>
+        <td class="${cls(p.rapm)}"><b>${fmt1(p.rapm)}</b></td></tr>
+    </tbody></table>
+    <div class="sub" style="margin-top:4px">Raw + adjustments &asymp; RAPM; ridge shrinkage means the rows don't sum exactly.</div></div>`;
+}
+
 function historyTable(id) {
   const h = HIST[String(id)];
   if (!h || h.length < 2) return '';  // single-season history just repeats the stats above

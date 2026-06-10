@@ -19,6 +19,13 @@
   offense), giving each player separate offensive and defensive impacts; RAPM = ORAPM + DRAPM.
   Non-D1 opponents (exhibitions, buy games) are collapsed into a single shared column so they
   cannot distort D1 ratings.</p>
+  <p>The small grey numbers under each rating decompose it:
+  <b>raw</b> is the player's unadjusted on-court plus-minus per 100 possessions vs the
+  D1 average; <b>tm</b> is the adjustment for the teammates she played with (negative
+  when good teammates inflated her raw number); <b>opp</b> is the adjustment for the
+  competition she faced (positive when a tough schedule deflated it). Raw + tm + opp
+  &asymp; RAPM &mdash; the rows don't sum exactly because ridge shrinkage and home-court
+  are not redistributed.</p>
   <p class="muted small">Caveat: players who almost always share the floor (or almost never
   play apart from a star) are hard to separate statistically; ridge keeps them stable but
   their O/D splits deserve skepticism.</p>
