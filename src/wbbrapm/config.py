@@ -18,6 +18,22 @@ OT_SECONDS = 300
 LAMBDA_GRID = [250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0]
 CV_FOLDS = 5
 
+# The three regression families the site can toggle between. Ridge is the
+# canonical RAPM (used for team aggregates, history, and trends); lasso and
+# elastic net are alternative views fit on the same design matrices. Alphas
+# were calibrated on 2025-26: lasso 0.02 keeps ~1k players nonzero, enet
+# sits between lasso's sparsity and ridge's dense shrinkage.
+MODEL_SPECS = {
+    "ridge": {"label": "Ridge (RAPM)"},
+    # the O/D system needs a lighter penalty than the margin system to keep
+    # a comparable number of players nonzero (calibrated on 2025-26)
+    "lasso": {"label": "Lasso (sparse)", "alpha": 0.02, "alpha_od": 0.01},
+    "enet": {"label": "Elastic Net", "alpha": 0.05, "alpha_od": 0.02, "l1_ratio": 0.5},
+}
+
+# Season trend: number of date-based phases the season is split into.
+N_PHASES = 2
+
 # Free-throw possession weight in the standard possession proxy.
 FTA_POSSESSION_WEIGHT = 0.44
 
@@ -79,6 +95,12 @@ class SeasonPaths:
     @property
     def ratings(self) -> Path:
         return PROCESSED_DIR / f"ratings_{self.season}.parquet"
+
+    def ratings_for(self, model: str) -> Path:
+        """ridge is the canonical ratings file; other models get a suffix."""
+        if model == "ridge":
+            return self.ratings
+        return PROCESSED_DIR / f"ratings_{self.season}_{model}.parquet"
 
     @property
     def phases(self) -> Path:

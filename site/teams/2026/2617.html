@@ -278,7 +278,7 @@ Data: ESPN via wehoop &middot; season 2025–26</footer>
 <script src="../../data/history.js"></script>
 <script src="../../data/trends_2026.js"></script>
 <script>
-const D = window.WBB_DATA.players;
+let D = window.WBB_DATA.players;  // reassigned when the leaderboard's model toggle loads another file
 const HIST = window.WBB_HISTORY || {};
 const TRENDS = window.WBB_TRENDS || {labels: [], players: {}};
 const seasonLabel = s => (s - 1) + '–' + String(s).slice(2);
@@ -316,7 +316,9 @@ function trendChart(id) {
   if (!t || TRENDS.labels.length < 2) return '';
   const pts = t.map(r => ({phase: r[0], o: r[1], d: r[2], r: r[3], min: r[4]}));
   if (!pts.some(p => p.min >= TREND_MIN_MINUTES)) return '';
-  const names = ['Early', 'Mid', 'Late'];
+  const names = TRENDS.labels.length === 2 ? ['1st half', '2nd half']
+              : TRENDS.labels.length === 3 ? ['Early', 'Mid', 'Late']
+              : TRENDS.labels.map((_, i) => 'P' + (i + 1));
   const W = 320, H = 90, PAD = 26;
   const vals = pts.map(p => p.r);
   const lo = Math.min(...vals, 0) - 1, hi = Math.max(...vals, 0) + 1;
@@ -337,14 +339,14 @@ function trendChart(id) {
       <div class="sub">${TRENDS.labels[p.phase]}</div>
       <div class="sub">O ${fmt1(p.o)} · D ${fmt1(p.d)} · ${Math.round(p.min)} min${p.min < TREND_MIN_MINUTES ? ' (thin)' : ''}</div>
     </td>`).join('');
-  return `<div style="margin-top:16px"><b class="small">Season trend <span class="muted" style="font-weight:400">(RAPM refit on each third of the season)</span></b>
+  return `<div style="margin-top:16px"><b class="small">Season trend <span class="muted" style="font-weight:400">(ridge RAPM refit on each ${TRENDS.labels.length === 2 ? 'half' : 'phase'} of the season)</span></b>
     <svg width="${W}" height="${H}" style="display:block;margin:4px auto 0">
       <line x1="${PAD}" x2="${W - PAD}" y1="${y(0)}" y2="${y(0)}" stroke="var(--border)" stroke-dasharray="3 3"/>
       <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
       ${dots}
     </svg>
     <table style="width:100%;margin-top:2px"><tr>${cells}</tr></table>
-    <div class="sub" style="margin-top:2px">Thirds of the season are refit independently; phase ratings shrink harder and are noisier than the full-season number.</div></div>`;
+    <div class="sub" style="margin-top:2px">Each phase is refit independently; phase ratings shrink harder and are noisier than the full-season number.</div></div>`;
 }
 
 function historyTable(id) {
@@ -388,7 +390,8 @@ function openModal(id) {
     </div>
     <div style="margin-top:14px" class="small muted">Offense ${bar(p.orapm)} Defense ${bar(p.drapm)}
     Margin-model RAPM: <b class="${cls(p.rapm_margin)}">${fmt1(p.rapm_margin)}</b>
-    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the ridge prior; read with care.' : ''}</div>
+    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the regularization; read with care.' : ''}
+    ${window.WBB_DATA.model && window.WBB_DATA.model !== 'ridge' ? `<br>Viewing <b>${window.WBB_DATA.model}</b> ratings; the season trend and history below always use ridge.` : ''}</div>
     ${trendChart(p.athlete_id)}
     ${breakdownTable(p)}
     ${historyTable(p.athlete_id)}`;

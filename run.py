@@ -140,15 +140,20 @@ def main() -> None:
     col_of, non_d1_col, d1_players = rapm.build_player_index(model_stints, athlete_team, d1_ids)
     print(f"  {len(d1_players)} D1 players, non-D1 collapsed to 1 column")
 
-    coefs = rapm.fit_models(model_stints, col_of, non_d1_col,
-                            lam_margin=args.lam_margin, lam_od=args.lam_od)
-    decomp = rapm.decompose_ratings(model_stints, col_of, non_d1_col, coefs)
-    ratings = rapm.assemble_ratings(coefs, d1_players, player_seconds, player_box, season,
-                                    decomp=decomp)
-    ratings.to_parquet(paths.ratings)
-    print(f"[rapm] wrote {paths.ratings}")
+    coefs_by_model = rapm.fit_models_multi(model_stints, col_of, non_d1_col,
+                                           lam_margin=args.lam_margin, lam_od=args.lam_od)
+    ratings_by_model = {}
+    for kind, kcoefs in coefs_by_model.items():
+        kdecomp = rapm.decompose_ratings(model_stints, col_of, non_d1_col, kcoefs)
+        kratings = rapm.assemble_ratings(kcoefs, d1_players, player_seconds, player_box,
+                                         season, decomp=kdecomp)
+        kratings.to_parquet(paths.ratings_for(kind))
+        ratings_by_model[kind] = kratings
+        print(f"[rapm] wrote {paths.ratings_for(kind)}")
+    coefs = coefs_by_model["ridge"]
+    ratings = ratings_by_model["ridge"]
 
-    print("[rapm] fitting season-phase (early/mid/late) ratings ...")
+    print("[rapm] fitting season-phase ratings ...")
     game_dates = (
         player_box.drop_duplicates("game_id").set_index("game_id")["game_date"].astype(str).to_dict()
     )
@@ -161,11 +166,23 @@ def main() -> None:
     team_box = io.load_team_box(paths)
     d1_team_box = team_box[team_box["team_id"].isin(d1_ids)]
     sanity = validate.team_sanity_check(ratings, d1_team_box)
+    model_comparison = {}
+    for kind, kratings in ratings_by_model.items():
+        ks = validate.team_sanity_check(kratings, d1_team_box)
+        model_comparison[kind] = {
+            "corr_net_margin": ks["pearson_rapm_vs_net_margin"],
+            "corr_win_pct": ks["pearson_rapm_vs_win_pct"],
+            "nonzero_players": int((kratings["rapm"] != 0).sum()),
+            "n_players": len(kratings),
+        }
+        print(f"  {kind}: corr(net margin) = {ks['pearson_rapm_vs_net_margin']:.3f}, "
+              f"nonzero {model_comparison[kind]['nonzero_players']}/{len(kratings)}")
     report = {
         "lineups": lineup_report,
         "model": {k: coefs[k] for k in ("hca_margin", "hca_od", "lam_margin", "lam_od", "n_stints")},
         "cv_scores": coefs.get("cv_scores", {}),
         "team_sanity": sanity,
+        "model_comparison": model_comparison,
     }
     paths.validation_report.write_text(json.dumps(report, indent=2, default=float))
     print(f"  corr(team RAPM, net margin) = {sanity['pearson_rapm_vs_net_margin']:.3f} "

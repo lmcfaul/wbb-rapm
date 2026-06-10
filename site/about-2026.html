@@ -115,6 +115,45 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 </div>
 
 <div class="panel">
+  <h2>The three regression models</h2>
+  <p>The leaderboard's model toggle refits the same stint design matrices with three
+  regression families that handle the bias&ndash;variance tradeoff differently:</p>
+  <p><b>Ridge</b> (the default, and what "RAPM" conventionally means) applies an L2 penalty:
+  every player is shrunk smoothly toward zero, no one is eliminated, and collinear teammates
+  share credit. <b>Lasso</b> applies an L1 penalty: it sets most players to exactly zero and
+  keeps only those whose impact the data can clearly support &mdash; a "who actually moves the
+  needle" view, with less shrinkage on the survivors (so their values run hotter).
+  <b>Elastic net</b> blends both penalties, keeping more players than lasso but sparser and
+  less smooth than ridge.</p>
+  
+  <table class="small" style="max-width:560px">
+    <thead><tr><th class="l">Model</th><th>corr w/ net margin</th><th>corr w/ win%</th><th>Players nonzero</th></tr></thead>
+    <tbody>
+    
+      <tr><td class="l">Ridge (RAPM)</td>
+        <td>0.899</td>
+        <td>0.840</td>
+        <td>4660/4662</td></tr>
+    
+      <tr><td class="l">Lasso (sparse)</td>
+        <td>0.903</td>
+        <td>0.812</td>
+        <td>858/4662</td></tr>
+    
+      <tr><td class="l">Elastic Net</td>
+        <td>0.905</td>
+        <td>0.804</td>
+        <td>1568/4662</td></tr>
+    
+    </tbody>
+  </table>
+  
+  <p class="muted small">Team aggregates, the Stanford/team pages, season trends, and
+  multi-year history always use ridge; the toggle changes the leaderboard, its rating
+  breakdowns, and the CSV download.</p>
+</div>
+
+<div class="panel">
   <h2>Pipeline validation &mdash; 2025–26</h2>
   
   <div class="statgrid">

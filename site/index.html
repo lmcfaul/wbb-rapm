@@ -88,6 +88,13 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
   <h2>Player leaderboard &mdash; 2025–26</h2>
   
   <div class="controls">
+    
+    <label>Model
+      <select id="f-model">
+        <option value="ridge">Ridge (RAPM)</option><option value="lasso">Lasso (sparse)</option><option value="enet">Elastic Net</option>
+      </select>
+    </label>
+    
     <input type="text" id="f-search" placeholder="Search player or team...">
     <label>Team
       <select id="f-team"><option value="">All teams</option>
@@ -96,7 +103,7 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
     </label>
     <label>Min minutes <input type="number" id="f-min" value="100" min="0" step="50" style="width:70px"></label>
     <label><input type="checkbox" id="f-low"> include low-sample</label>
-    <span class="dl"><a href="data/ratings_2026.csv" download>&#8595; CSV</a></span>
+    <span class="dl"><a id="csv-link" href="data/ratings_2026.csv" download>&#8595; CSV</a></span>
     <span class="muted small" id="f-count"></span>
   </div>
   <table id="tbl">
@@ -125,7 +132,7 @@ Data: ESPN via wehoop &middot; season 2025–26</footer>
 <script src="data/history.js"></script>
 <script src="data/trends_2026.js"></script>
 <script>
-const D = window.WBB_DATA.players;
+let D = window.WBB_DATA.players;  // reassigned when the leaderboard's model toggle loads another file
 const HIST = window.WBB_HISTORY || {};
 const TRENDS = window.WBB_TRENDS || {labels: [], players: {}};
 const seasonLabel = s => (s - 1) + '–' + String(s).slice(2);
@@ -163,7 +170,9 @@ function trendChart(id) {
   if (!t || TRENDS.labels.length < 2) return '';
   const pts = t.map(r => ({phase: r[0], o: r[1], d: r[2], r: r[3], min: r[4]}));
   if (!pts.some(p => p.min >= TREND_MIN_MINUTES)) return '';
-  const names = ['Early', 'Mid', 'Late'];
+  const names = TRENDS.labels.length === 2 ? ['1st half', '2nd half']
+              : TRENDS.labels.length === 3 ? ['Early', 'Mid', 'Late']
+              : TRENDS.labels.map((_, i) => 'P' + (i + 1));
   const W = 320, H = 90, PAD = 26;
   const vals = pts.map(p => p.r);
   const lo = Math.min(...vals, 0) - 1, hi = Math.max(...vals, 0) + 1;
@@ -184,14 +193,14 @@ function trendChart(id) {
       <div class="sub">${TRENDS.labels[p.phase]}</div>
       <div class="sub">O ${fmt1(p.o)} · D ${fmt1(p.d)} · ${Math.round(p.min)} min${p.min < TREND_MIN_MINUTES ? ' (thin)' : ''}</div>
     </td>`).join('');
-  return `<div style="margin-top:16px"><b class="small">Season trend <span class="muted" style="font-weight:400">(RAPM refit on each third of the season)</span></b>
+  return `<div style="margin-top:16px"><b class="small">Season trend <span class="muted" style="font-weight:400">(ridge RAPM refit on each ${TRENDS.labels.length === 2 ? 'half' : 'phase'} of the season)</span></b>
     <svg width="${W}" height="${H}" style="display:block;margin:4px auto 0">
       <line x1="${PAD}" x2="${W - PAD}" y1="${y(0)}" y2="${y(0)}" stroke="var(--border)" stroke-dasharray="3 3"/>
       <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
       ${dots}
     </svg>
     <table style="width:100%;margin-top:2px"><tr>${cells}</tr></table>
-    <div class="sub" style="margin-top:2px">Thirds of the season are refit independently; phase ratings shrink harder and are noisier than the full-season number.</div></div>`;
+    <div class="sub" style="margin-top:2px">Each phase is refit independently; phase ratings shrink harder and are noisier than the full-season number.</div></div>`;
 }
 
 function historyTable(id) {
@@ -235,7 +244,8 @@ function openModal(id) {
     </div>
     <div style="margin-top:14px" class="small muted">Offense ${bar(p.orapm)} Defense ${bar(p.drapm)}
     Margin-model RAPM: <b class="${cls(p.rapm_margin)}">${fmt1(p.rapm_margin)}</b>
-    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the ridge prior; read with care.' : ''}</div>
+    ${p.low_sample ? '<br>Low-sample player: heavily shrunk toward 0 by the regularization; read with care.' : ''}
+    ${window.WBB_DATA.model && window.WBB_DATA.model !== 'ridge' ? `<br>Viewing <b>${window.WBB_DATA.model}</b> ratings; the season trend and history below always use ridge.` : ''}</div>
     ${trendChart(p.athlete_id)}
     ${breakdownTable(p)}
     ${historyTable(p.athlete_id)}`;
@@ -295,6 +305,24 @@ document.querySelectorAll('#tbl th').forEach(th => th.addEventListener('click', 
 }));
 ['f-search', 'f-team', 'f-min', 'f-low'].forEach(id =>
   document.getElementById(id).addEventListener('input', render));
+
+// regression-model toggle: each model has its own data file; loading one
+// replaces window.WBB_DATA, then the table re-renders from the new ratings
+const MODEL_FILES = {
+  'ridge': 'data/ratings_2026',
+  'lasso': 'data/ratings_2026_lasso',
+  'enet': 'data/ratings_2026_enet',
+  
+};
+const modelSel = document.getElementById('f-model');
+if (modelSel) modelSel.addEventListener('change', e => {
+  const base = MODEL_FILES[e.target.value];
+  document.getElementById('csv-link').href = base + '.csv';
+  const s = document.createElement('script');
+  s.src = base + '.js';
+  s.onload = () => { D = window.WBB_DATA.players; render(); };
+  document.body.appendChild(s);
+});
 render();
 </script>
 

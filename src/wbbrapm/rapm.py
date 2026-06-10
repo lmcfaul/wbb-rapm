@@ -11,10 +11,10 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from scipy import sparse
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import ElasticNet, Lasso, Ridge
 from sklearn.model_selection import GroupKFold
 
-from .config import CV_FOLDS, LAMBDA_GRID, LOW_MINUTES_FLAG, NON_D1_PLAYER_ID
+from .config import CV_FOLDS, LAMBDA_GRID, LOW_MINUTES_FLAG, MODEL_SPECS, NON_D1_PLAYER_ID
 
 
 def build_player_index(stints: pd.DataFrame, athlete_team: dict[int, int], d1_ids: set[int]):
@@ -86,8 +86,23 @@ def build_od_system(stints: pd.DataFrame, col_of, non_d1_col):
     return X, np.array(ys), np.array(ws), np.array(groups)
 
 
-def _fit(X, y, w, lam) -> np.ndarray:
-    model = Ridge(alpha=lam, fit_intercept=True, solver="sparse_cg")
+def _make_estimator(kind: str, lam: float | None = None, system: str = "margin"):
+    """lam only applies to ridge; lasso/enet use their calibrated alphas,
+    with a lighter alpha on the O/D system (different response scale)."""
+    spec = MODEL_SPECS[kind]
+    if kind == "ridge":
+        return Ridge(alpha=lam, fit_intercept=True, solver="sparse_cg")
+    alpha = spec["alpha_od"] if system == "od" and "alpha_od" in spec else spec["alpha"]
+    if kind == "lasso":
+        return Lasso(alpha=alpha, fit_intercept=True, max_iter=3000, tol=1e-3)
+    if kind == "enet":
+        return ElasticNet(alpha=alpha, l1_ratio=spec["l1_ratio"],
+                          fit_intercept=True, max_iter=3000, tol=1e-3)
+    raise ValueError(f"unknown model kind {kind!r}")
+
+
+def _fit(X, y, w, lam, kind: str = "ridge", system: str = "margin"):
+    model = _make_estimator(kind, lam, system)
     model.fit(X, y, sample_weight=w)
     return model
 
@@ -105,24 +120,8 @@ def cv_lambda(X, y, w, groups, grid=LAMBDA_GRID, n_splits=CV_FOLDS) -> tuple[flo
     return best, scores
 
 
-def fit_models(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, lam_od=None, verbose=True):
-    """Fit both models; returns per-player coefficient arrays + chosen lambdas."""
-    Xm, ym, wm, gm = build_margin_system(stints, col_of, non_d1_col)
-    Xo, yo, wo, go = build_od_system(stints, col_of, non_d1_col)
-
-    cv_scores = {}
-    if lam_margin is None:
-        lam_margin, cv_scores["margin"] = cv_lambda(Xm, ym, wm, gm)
-    if lam_od is None:
-        lam_od, cv_scores["od"] = cv_lambda(Xo, yo, wo, go)
-    if verbose:
-        print(f"  lambda (margin) = {lam_margin}, lambda (O/D) = {lam_od}")
-
-    margin_model = _fit(Xm, ym, wm, lam_margin)
-    od_model = _fit(Xo, yo, wo, lam_od)
-
-    n_players = non_d1_col + 1
-    coefs = {
+def _package_coefs(margin_model, od_model, n_players, lam_margin, lam_od, n_stints, cv_scores):
+    return {
         "rapm_margin": margin_model.coef_[:n_players],
         "orapm": od_model.coef_[:n_players],
         # negate: D coefficient is points *allowed*, so lower is better
@@ -132,9 +131,48 @@ def fit_models(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, lam_od
         "lam_margin": lam_margin,
         "lam_od": lam_od,
         "cv_scores": cv_scores,
-        "n_stints": Xm.shape[0],
+        "n_stints": n_stints,
     }
-    return coefs
+
+
+def fit_models(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, lam_od=None,
+               verbose=True, model="ridge"):
+    """Fit both systems with one regression family; returns coefficient arrays."""
+    return fit_models_multi(stints, col_of, non_d1_col, lam_margin, lam_od,
+                            verbose=verbose, models=[model])[model]
+
+
+def fit_models_multi(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, lam_od=None,
+                     verbose=True, models=None):
+    """Fit every requested regression family on shared design matrices.
+
+    Returns {model_kind: coefs}. Ridge lambdas come from CV (or the args);
+    lasso / elastic net use the calibrated alphas in MODEL_SPECS.
+    """
+    models = models or list(MODEL_SPECS)
+    Xm, ym, wm, gm = build_margin_system(stints, col_of, non_d1_col)
+    Xo, yo, wo, go = build_od_system(stints, col_of, non_d1_col)
+
+    cv_scores = {}
+    if "ridge" in models:
+        if lam_margin is None:
+            lam_margin, cv_scores["margin"] = cv_lambda(Xm, ym, wm, gm)
+        if lam_od is None:
+            lam_od, cv_scores["od"] = cv_lambda(Xo, yo, wo, go)
+        if verbose:
+            print(f"  lambda (margin) = {lam_margin}, lambda (O/D) = {lam_od}")
+
+    out = {}
+    n_players = non_d1_col + 1
+    for kind in models:
+        mm = _fit(Xm, ym, wm, lam_margin, kind, system="margin")
+        om = _fit(Xo, yo, wo, lam_od, kind, system="od")
+        out[kind] = _package_coefs(mm, om, n_players, lam_margin, lam_od,
+                                   Xm.shape[0], cv_scores if kind == "ridge" else {})
+        if verbose and kind != "ridge":
+            nz = int((out[kind]["rapm_margin"] != 0).sum())
+            print(f"  {kind}: {nz}/{n_players - 1} players nonzero (margin model)")
+    return out
 
 
 def fit_phase_ratings(
@@ -143,16 +181,20 @@ def fit_phase_ratings(
     non_d1_col,
     lam_od: float,
     game_dates: dict[int, str],
-    n_phases: int = 3,
+    n_phases: int | None = None,
 ) -> pd.DataFrame:
-    """Refit the O/D model on date-based thirds of the season.
+    """Refit the O/D model on date-based slices of the season (default halves).
 
     Games are sorted by date and split into n_phases equal-count groups; each
     phase gets its own ridge fit (same lambda as the full model, so phase
-    ratings are comparable but noisier - a third of the data shrinks harder).
-    Returns one row per (athlete, phase) with phase minutes for the UI to
-    grey out thin samples.
+    ratings are comparable but noisier - a fraction of the data shrinks
+    harder). Returns one row per (athlete, phase) with phase minutes for the
+    UI to grey out thin samples.
     """
+    from .config import N_PHASES
+
+    if n_phases is None:
+        n_phases = N_PHASES
     games = sorted(
         (g for g in stints["game_id"].unique() if g in game_dates),
         key=lambda g: game_dates[g],

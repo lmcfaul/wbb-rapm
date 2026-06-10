@@ -58,8 +58,16 @@ usable games aborts with an explanation. Future seasons: `make season YEAR=2027`
 | 5 Validate | `src/wbbrapm/validate.py` | Reconstructed minutes vs box minutes (bad games excluded); team-level RAPM vs net margin / win% |
 | 6 Site | `src/wbbrapm/site.py` | Static HTML: leaderboard w/ search-sort-filter, player modal (rating breakdown, season-phase trend chart, multi-year history) on leaderboard *and* team pages, lineup explorer (2- to 5-player combos), team pages w/ top lineups, Stanford page, about/validation page, CSV export |
 
-The player modal's **season trend** splits the season's games into three date-based
-thirds and refits the O/D ridge model on each (same λ), showing Early/Mid/Late RAPM
+The leaderboard has a **model toggle** between three regression families fit on the
+same design matrices: **ridge** (canonical RAPM; smooth shrinkage, everyone rated),
+**lasso** (L1; most players exactly zero, only clearly-supported impacts survive,
+α = 0.02 margin / 0.01 O/D), and **elastic net** (the blend, α = 0.05/0.02,
+l1_ratio = 0.5). Each gets its own ratings parquet, JS data file, CSV, rating
+breakdown, and team-correlation entry on the About page (all three hit ≈ 0.90 vs
+net margin). Team pages, trends, and history always use ridge.
+
+The player modal's **season trend** splits the season's games into two date-based
+halves and refits the O/D ridge model on each (same λ), showing 1st/2nd-half RAPM
 with an inline chart; phases under 30 minutes are greyed as thin samples. The
 **lineup explorer** aggregates every 2-, 3-, 4-, and 5-player same-team combination's
 raw on-court numbers (possession floors of 100/75/50/50 by size) with team, size,

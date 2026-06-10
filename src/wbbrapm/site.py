@@ -20,6 +20,7 @@ from . import io
 from .config import (
     LOW_MINUTES_FLAG,
     MIN_MINUTES_DEFAULT_FILTER,
+    MODEL_SPECS,
     PROCESSED_DIR,
     SITE_DIR,
     STANFORD_TEAM_NAME,
@@ -237,19 +238,29 @@ def build_site(season: int) -> None:
     (SITE_DIR / "data").mkdir(parents=True, exist_ok=True)
     (SITE_DIR / "teams" / str(season)).mkdir(parents=True, exist_ok=True)
 
-    # --- data files (JS for the table, CSV for download) ---
-    js_df = ratings[[c for c in PLAYER_JS_COLS if c in ratings.columns]].copy()
-    for c in ["orapm", "drapm", "rapm", "rapm_margin", "minutes"] + DECOMP_COLS:
-        if c in js_df.columns:
-            js_df[c] = js_df[c].astype(float).round(2)
-    js_df = js_df.where(js_df.notna(), None)
-    payload = {"season": season, "players": js_df.to_dict(orient="records")}
-    (SITE_DIR / "data" / f"ratings_{season}.js").write_text(
-        "window.WBB_DATA = " + json.dumps(payload) + ";"
-    )
-    ratings.drop(columns=["team_color"], errors="ignore").to_csv(
-        SITE_DIR / "data" / f"ratings_{season}.csv", index=False
-    )
+    # --- data files (JS for the table, CSV for download), one set per model ---
+    def write_ratings_files(df: pd.DataFrame, model: str) -> None:
+        suffix = "" if model == "ridge" else f"_{model}"
+        js_df = df[[c for c in PLAYER_JS_COLS if c in df.columns]].copy()
+        for c in ["orapm", "drapm", "rapm", "rapm_margin", "minutes"] + DECOMP_COLS:
+            if c in js_df.columns:
+                js_df[c] = js_df[c].astype(float).round(2)
+        js_df = js_df.where(js_df.notna(), None)
+        payload = {"season": season, "model": model, "players": js_df.to_dict(orient="records")}
+        (SITE_DIR / "data" / f"ratings_{season}{suffix}.js").write_text(
+            "window.WBB_DATA = " + json.dumps(payload) + ";"
+        )
+        df.drop(columns=["team_color"], errors="ignore").to_csv(
+            SITE_DIR / "data" / f"ratings_{season}{suffix}.csv", index=False
+        )
+
+    write_ratings_files(ratings, "ridge")
+    models_available = ["ridge"]
+    for model in MODEL_SPECS:
+        p = paths.ratings_for(model)
+        if model != "ridge" and p.exists():
+            write_ratings_files(pd.read_parquet(p), model)
+            models_available.append(model)
 
     # season-phase trends for the player modal
     trends: dict[str, list] = {}
@@ -295,6 +306,7 @@ def build_site(season: int) -> None:
         "low_minutes_flag": LOW_MINUTES_FLAG,
         "lineup_min_poss": LINEUP_MIN_POSS,
         "coverage_note": coverage_note,
+        "models": [{"key": m, "label": MODEL_SPECS[m]["label"]} for m in models_available],
     }
 
     def write(name: str, html: str, alias: str | None = None) -> None:

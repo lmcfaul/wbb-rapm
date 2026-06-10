@@ -32,6 +32,35 @@
 </div>
 
 <div class="panel">
+  <h2>The three regression models</h2>
+  <p>The leaderboard's model toggle refits the same stint design matrices with three
+  regression families that handle the bias&ndash;variance tradeoff differently:</p>
+  <p><b>Ridge</b> (the default, and what "RAPM" conventionally means) applies an L2 penalty:
+  every player is shrunk smoothly toward zero, no one is eliminated, and collinear teammates
+  share credit. <b>Lasso</b> applies an L1 penalty: it sets most players to exactly zero and
+  keeps only those whose impact the data can clearly support &mdash; a "who actually moves the
+  needle" view, with less shrinkage on the survivors (so their values run hotter).
+  <b>Elastic net</b> blends both penalties, keeping more players than lasso but sparser and
+  less smooth than ridge.</p>
+  {% if v.model_comparison %}
+  <table class="small" style="max-width:560px">
+    <thead><tr><th class="l">Model</th><th>corr w/ net margin</th><th>corr w/ win%</th><th>Players nonzero</th></tr></thead>
+    <tbody>
+    {% for m in models %}{% if v.model_comparison[m.key] %}
+      <tr><td class="l">{{ m.label }}</td>
+        <td>{{ '%.3f'|format(v.model_comparison[m.key].corr_net_margin) }}</td>
+        <td>{{ '%.3f'|format(v.model_comparison[m.key].corr_win_pct) }}</td>
+        <td>{{ v.model_comparison[m.key].nonzero_players }}/{{ v.model_comparison[m.key].n_players }}</td></tr>
+    {% endif %}{% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  <p class="muted small">Team aggregates, the Stanford/team pages, season trends, and
+  multi-year history always use ridge; the toggle changes the leaderboard, its rating
+  breakdowns, and the CSV download.</p>
+</div>
+
+<div class="panel">
   <h2>Pipeline validation &mdash; {{ season_label }}</h2>
   {% if coverage_note %}<p class="small muted" style="margin-top:-4px">&#9888; {{ coverage_note }}</p>{% endif %}
   <div class="statgrid">

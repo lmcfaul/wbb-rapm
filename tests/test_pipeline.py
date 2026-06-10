@@ -143,14 +143,18 @@ def test_phase_ratings():
     col_of, non_d1, players = rapm.build_player_index(sd, athlete_team, {1, 2})
     game_dates = {g: f"2026-01-{g + 1:02d}" for g in range(60)}
     ph = rapm.fit_phase_ratings(sd, col_of, non_d1, lam_od=50.0, game_dates=game_dates)
-    assert sorted(ph["phase"].unique()) == [0, 1, 2]
+    assert sorted(ph["phase"].unique()) == [0, 1]  # season splits into halves
     star = ph[ph["athlete_id"] == 101].sort_values("phase")
     # the star's effect is constant across the season: positive in every phase
     assert (star["rapm"] > 1.0).all()
     # phase date labels follow the split
-    assert star.iloc[0]["start"] == "2026-01-01" and star.iloc[2]["end"] == "2026-01-60"
+    assert star.iloc[0]["start"] == "2026-01-01" and star.iloc[1]["end"] == "2026-01-60"
     # minutes divide roughly evenly (star plays half of each game's stints)
     assert star["minutes"].std() < star["minutes"].mean() * 0.2
+    # explicit phase count still honored
+    ph3 = rapm.fit_phase_ratings(sd, col_of, non_d1, lam_od=50.0,
+                                 game_dates=game_dates, n_phases=3)
+    assert sorted(ph3["phase"].unique()) == [0, 1, 2]
 
 
 def test_ridge_shrinks_low_sample_players():
