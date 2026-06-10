@@ -118,7 +118,7 @@ function openModal(id) {
 }
 function historyTable(id) {
   const h = HIST[String(id)];
-  if (!h || h.length < 1) return '';
+  if (!h || h.length < 2) return '';  // single-season history just repeats the stats above
   const rows = h.slice().sort((a, b) => b.season - a.season).map(r => `
     <tr${r.season === {{ season }} ? ' style="background:var(--panel2)"' : ''}>
       <td class="l">${seasonLabel(r.season)}</td>

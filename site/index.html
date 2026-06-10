@@ -77,12 +77,6 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
     <a href="about-2026.html" >About / Validation</a>
   </nav>
   
-  <label class="season-pick">Season
-    <select onchange="location.href=this.value">
-      <option value="index-2025.html" >2024–25</option><option value="index-2026.html" selected>2025–26</option>
-    </select>
-  </label>
-  
 </header>
 <main>
 
@@ -206,7 +200,7 @@ function openModal(id) {
 }
 function historyTable(id) {
   const h = HIST[String(id)];
-  if (!h || h.length < 1) return '';
+  if (!h || h.length < 2) return '';  // single-season history just repeats the stats above
   const rows = h.slice().sort((a, b) => b.season - a.season).map(r => `
     <tr${r.season === 2026 ? ' style="background:var(--panel2)"' : ''}>
       <td class="l">${seasonLabel(r.season)}</td>

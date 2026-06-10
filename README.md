@@ -34,14 +34,18 @@ has suffixed pages (`index-2025.html`, `teams/2025/<id>.html`, ...).
 ### Season availability
 
 Lineup RAPM needs substitution events, and ESPN's WBB play-by-play only began
-recording them mid-2024-25 (from Feb 12, 2025):
+recording them mid-2024-25 (from Feb 12, 2025). **2025–26 is the first fully covered
+season and the only one published** (5,943 of 6,011 games pass QA).
 
-- **2026** (2025–26): full season — 5,943 of 6,011 games pass QA.
-- **2025** (2024–25): partial — 1,362 games from Feb 12 to Apr 6, 2025 (late season +
-  postseason). Pages carry a coverage warning.
-- **2024 and earlier**: no substitution data exists; the pipeline refuses to produce
-  ratings (games with <10 sub events are excluded outright, and a season with zero
-  usable games aborts with an explanation).
+Alternative sources were investigated for earlier seasons and none pan out:
+stats.ncaa.org has subs but blocks programmatic access (403); NCAA.com's data API
+(data.ncaa.com) does not retain per-game play-by-play; NCAA LiveStats / Genius Sports
+is credentialed-commercial; Her Hoop Stats / CBB Analytics have no pbp export;
+Sports-Reference has no WBB pbp. 2024-25 (late-season-only ESPN coverage) was built
+and then removed by request.
+
+Guards: games with <10 sub events are excluded outright, and a season with zero
+usable games aborts with an explanation. Future seasons: `make season YEAR=2027`.
 
 ## Pipeline
 
