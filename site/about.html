@@ -115,6 +115,26 @@ footer { text-align: center; color: var(--muted); font-size: 12px; padding: 30px
 </div>
 
 <div class="panel">
+  <h2>Uncertainty (the &plusmn; intervals)</h2>
+  <p>Open any player to see a <b>95% credible interval</b> next to her RAPM, offense, and
+  defense (e.g. <span class="num-good">+8.2</span> with &ldquo;95% CI &plusmn;3.1&rdquo;),
+  and a shaded band around the season-trend line. These come for free from the ridge math:
+  ridge regression is exactly the posterior mean of a Bayesian model with a Gaussian prior
+  on the coefficients, so each rating has a posterior standard deviation. The interval is
+  the rating &plusmn; 1.96 standard deviations.</p>
+  <p>The interval narrows as a player logs more minutes in more varied lineups &mdash; more
+  evidence, less uncertainty &mdash; which is why low-minute players show the widest bands.
+  Read it as a guide to how much to trust the number: when two players' intervals overlap
+  heavily, treat the gap between them as a tie.</p>
+  <p class="muted small">These are <b>credible</b> intervals, not classical confidence
+  intervals: ridge deliberately biases every estimate toward zero (the shrinkage), so the
+  interval describes the posterior spread around a shrunken estimate rather than guaranteeing
+  textbook coverage. They are also fairly wide and uniform &mdash; the honest signal that a
+  single season is a limited sample. Intervals are available for the ridge model only; the
+  lasso and elastic-net toggles have no closed-form posterior, so they show no band.</p>
+</div>
+
+<div class="panel">
   <h2>The three regression models</h2>
   <p>The leaderboard's model toggle refits the same stint design matrices with three
   regression families that handle the bias&ndash;variance tradeoff differently:</p>

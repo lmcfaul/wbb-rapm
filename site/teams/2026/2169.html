@@ -323,6 +323,9 @@ const TRENDS = window.WBB_TRENDS || {labels: [], players: {}};
 const seasonLabel = s => (s - 1) + '–' + String(s).slice(2);
 const fmt1 = x => x == null || !isFinite(x) ? '—' : (x >= 0 ? '+' : '') + x.toFixed(1);
 const cls = x => x >= 0 ? 'num-good' : 'num-bad';
+// Bayesian 95% credible interval from the ridge posterior SD (ridge model only).
+const Z95 = 1.96;
+const ci = sd => (sd == null || !isFinite(sd)) ? '' : `<div class="sub">95% CI &plusmn;${(Z95 * sd).toFixed(1)}</div>`;
 // small muted second line: raw on-court rating + teammate / competition adjustments
 const sub = (p, kind) => `<span class="sub">raw ${fmt1(p['raw_' + kind])} tm ${fmt1(p['tm_' + kind])} opp ${fmt1(p['opp_' + kind])}</span>`;
 
@@ -353,18 +356,26 @@ const TREND_MIN_MINUTES = 30;
 function trendChart(id) {
   const t = TRENDS.players[String(id)];
   if (!t || TRENDS.labels.length < 2) return '';
-  const pts = t.map(r => ({phase: r[0], o: r[1], d: r[2], r: r[3], min: r[4]}));
+  const pts = t.map(r => ({phase: r[0], o: r[1], d: r[2], r: r[3], min: r[4], sd: r[5]}));
   if (!pts.some(p => p.min >= TREND_MIN_MINUTES)) return '';
   const names = TRENDS.labels.length === 2 ? ['1st half', '2nd half']
               : TRENDS.labels.length === 3 ? ['Early', 'Mid', 'Late']
               : TRENDS.labels.map((_, i) => 'P' + (i + 1));
+  const band = p => (p.sd == null || !isFinite(p.sd)) ? 0 : Z95 * p.sd;  // 95% CI half-width
   const W = 320, H = 90, PAD = 26;
-  const vals = pts.map(p => p.r);
-  const lo = Math.min(...vals, 0) - 1, hi = Math.max(...vals, 0) + 1;
+  const lo = Math.min(...pts.map(p => p.r - band(p)), 0) - 1;
+  const hi = Math.max(...pts.map(p => p.r + band(p)), 0) + 1;
   const x = i => PAD + i * (W - 2 * PAD) / (pts.length - 1);
   const y = v => H - PAD / 2 - (v - lo) * (H - PAD) / (hi - lo);
   const solid = pts.filter(p => p.min >= TREND_MIN_MINUTES);
   const line = solid.map((p, i) => `${i ? 'L' : 'M'}${x(p.phase).toFixed(1)},${y(p.r).toFixed(1)}`).join(' ');
+  const bandPts = solid.filter(p => band(p) > 0);
+  const bandPoly = bandPts.length >= 2
+    ? `<polygon points="${
+        bandPts.map(p => `${x(p.phase).toFixed(1)},${y(p.r + band(p)).toFixed(1)}`)
+          .concat(bandPts.slice().reverse().map(p => `${x(p.phase).toFixed(1)},${y(p.r - band(p)).toFixed(1)}`))
+          .join(' ')}" fill="var(--accent)" opacity="0.13"/>`
+    : '';
   const dots = pts.map(p => {
     const thin = p.min < TREND_MIN_MINUTES;
     return `<circle cx="${x(p.phase).toFixed(1)}" cy="${y(p.r).toFixed(1)}" r="3.5"
@@ -381,11 +392,12 @@ function trendChart(id) {
   return `<div style="margin-top:16px"><b class="small">Season trend <span class="muted" style="font-weight:400">(ridge RAPM refit on each ${TRENDS.labels.length === 2 ? 'half' : 'phase'} of the season)</span></b>
     <svg width="${W}" height="${H}" style="display:block;margin:4px auto 0">
       <line x1="${PAD}" x2="${W - PAD}" y1="${y(0)}" y2="${y(0)}" stroke="var(--border)" stroke-dasharray="3 3"/>
+      ${bandPoly}
       <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
       ${dots}
     </svg>
     <table style="width:100%;margin-top:2px"><tr>${cells}</tr></table>
-    <div class="sub" style="margin-top:2px">Each phase is refit independently; phase ratings shrink harder and are noisier than the full-season number.</div></div>`;
+    <div class="sub" style="margin-top:2px">Each phase is refit independently; phase ratings shrink harder and are noisier than the full-season number.${bandPoly ? ' Shaded band = 95% credible interval.' : ''}</div></div>`;
 }
 
 function historyTable(id) {
@@ -423,9 +435,9 @@ function openModal(id) {
       <span class="muted">${p.team || ''} &middot; ${p.position || ''} &middot; ${p.games} GP &middot; ${Math.round(p.minutes)} min</span></div>
     </div>
     <div class="statgrid">
-      <div class="stat"><div class="v ${cls(p.rapm)}">${fmt1(p.rapm)}</div><div class="k">RAPM (rank ${p.rank})</div></div>
-      <div class="stat"><div class="v ${cls(p.orapm)}">${fmt1(p.orapm)}</div><div class="k">Offense</div></div>
-      <div class="stat"><div class="v ${cls(p.drapm)}">${fmt1(p.drapm)}</div><div class="k">Defense</div></div>
+      <div class="stat"><div class="v ${cls(p.rapm)}">${fmt1(p.rapm)}</div><div class="k">RAPM (rank ${p.rank})</div>${ci(p.rapm_sd)}</div>
+      <div class="stat"><div class="v ${cls(p.orapm)}">${fmt1(p.orapm)}</div><div class="k">Offense</div>${ci(p.orapm_sd)}</div>
+      <div class="stat"><div class="v ${cls(p.drapm)}">${fmt1(p.drapm)}</div><div class="k">Defense</div>${ci(p.drapm_sd)}</div>
     </div>
     <div style="margin-top:14px" class="small muted">Offense ${bar(p.orapm)} Defense ${bar(p.drapm)}
     Margin-model RAPM: <b class="${cls(p.rapm_margin)}">${fmt1(p.rapm_margin)}</b>

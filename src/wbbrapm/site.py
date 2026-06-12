@@ -31,10 +31,11 @@ from .config import (
 LINEUP_MIN_POSS = 50
 DECOMP_COLS = ["raw_off", "raw_def", "raw_net", "tm_off", "tm_def", "tm_net",
                "opp_off", "opp_def", "opp_net"]
+SD_COLS = ["orapm_sd", "drapm_sd", "rapm_sd"]  # ridge-only credible-interval SDs
 PLAYER_JS_COLS = [
     "athlete_id", "name", "team", "team_logo", "position", "headshot",
     "games", "minutes", "orapm", "drapm", "rapm", "rapm_margin", "rank", "low_sample",
-] + DECOMP_COLS
+] + DECOMP_COLS + SD_COLS
 HISTORY_COLS = ["season", "team", "games", "minutes", "orapm", "drapm", "rapm", "rank"]
 
 
@@ -242,7 +243,7 @@ def build_site(season: int) -> None:
     def write_ratings_files(df: pd.DataFrame, model: str) -> None:
         suffix = "" if model == "ridge" else f"_{model}"
         js_df = df[[c for c in PLAYER_JS_COLS if c in df.columns]].copy()
-        for c in ["orapm", "drapm", "rapm", "rapm_margin", "minutes"] + DECOMP_COLS:
+        for c in ["orapm", "drapm", "rapm", "rapm_margin", "minutes"] + DECOMP_COLS + SD_COLS:
             if c in js_df.columns:
                 js_df[c] = js_df[c].astype(float).round(2)
         js_df = js_df.where(js_df.notna(), None)
@@ -269,10 +270,12 @@ def build_site(season: int) -> None:
         ph = pd.read_parquet(paths.phases)
         labels = ph.drop_duplicates("phase").sort_values("phase")
         phase_labels = [f"{r.start} – {r.end}" for r in labels.itertuples(index=False)]
+        has_sd = "rapm_sd" in ph.columns
         for aid, grp in ph.sort_values("phase").groupby("athlete_id"):
             trends[str(int(aid))] = [
                 [int(r.phase), round(r.orapm, 2), round(r.drapm, 2),
                  round(r.rapm, 2), round(r.minutes, 1)]
+                + ([round(r.rapm_sd, 2)] if has_sd else [])
                 for r in grp.itertuples(index=False)
             ]
     (SITE_DIR / "data" / f"trends_{season}.js").write_text(

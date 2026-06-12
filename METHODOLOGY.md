@@ -28,8 +28,9 @@ players with little playing time toward zero so small samples can't dominate.**
 11. [Lineup explorer](#11-lineup-explorer)
 12. [Which games are excluded, and why](#12-which-games-are-excluded-and-why)
 13. [Validation — how we know it works](#13-validation--how-we-know-it-works)
-14. [Caveats and known limitations](#14-caveats-and-known-limitations)
-15. [Glossary](#15-glossary)
+14. [Uncertainty — the ± credible intervals](#14-uncertainty--the--credible-intervals)
+15. [Caveats and known limitations](#15-caveats-and-known-limitations)
+16. [Glossary](#16-glossary)
 
 ---
 
@@ -512,7 +513,82 @@ star recovery, and shrinkage behavior.
 
 ---
 
-## 14. Caveats and known limitations
+## 14. Uncertainty — the ± credible intervals
+
+**Code:** `rapm._ridge_posterior`, `rapm.ridge_od_sd`
+
+Every rating in the player modal carries a **95% credible interval** (e.g. `RAPM +8.2
+± 3.1`), and the season-trend chart draws a shaded band around the line. This section
+explains where those come from and how to read them.
+
+### Why ridge gives you intervals for free
+
+Ridge regression isn't just "least squares with a penalty" — it is **exactly the
+posterior mean of a Bayesian linear model** with a Gaussian prior on the coefficients,
+`β ~ Normal(0, σ²/λ)`. The λ penalty *is* that prior. Because the model is Bayesian
+under the hood, every coefficient has not just a point estimate but a full posterior
+distribution, and that distribution's spread is the uncertainty. The posterior
+covariance has a closed form:
+
+```
+Σ = σ² · (XᵀWX + λI)⁻¹
+```
+
+- `X`, `W`, `λ` are the same design matrix, possession weights, and penalty from the
+  RAPM fit (§5–§7).
+- `σ²` is the residual variance — the unexplained scoring noise — estimated as the
+  weighted residual sum of squares divided by the effective degrees of freedom
+  (`trace(XᵀWX · Σ/σ²)`, the standard ridge effective-parameter count).
+
+Each player's **posterior standard deviation** is `SD_i = √(Σ_ii)`, and the displayed
+interval is `rating ± 1.96 · SD` (the 95% point of a normal). For **RAPM = ORAPM +
+DRAPM** the variance uses the exact offense/defense cross-covariance from the same Σ:
+
+```
+Var(RAPM_i) = Var(ORAPM_i) + Var(DRAPM_i) − 2·Cov(ORAPM_i, DRAPM_i)
+```
+
+The same formula is applied to each **season half** (§10) on its smaller design matrix,
+which is why the trend band is wider than the full-season interval.
+
+### How to read it
+
+- **The interval shrinks with evidence.** A player with many possessions across many
+  different lineups has a small SD; a player with thin, repetitive minutes has a large
+  one. Empirically the per-player SD correlates about **−0.85 with minutes played** —
+  exactly the behavior you want from an uncertainty estimate.
+- **Overlapping intervals ≈ a tie.** If two players' bands overlap heavily, the data
+  can't really tell them apart; don't over-read the gap between their point estimates.
+- **The bands are wide** (roughly ±7–10 points per 100 at 95%, fairly similar across
+  players). That is not a defect — it is the honest message that one season of
+  estimated-possession data carries large uncertainty, and that single-season RAPM
+  should be read as a range, not a precise number.
+
+### Three honest caveats
+
+1. **Credible, not classical.** These are Bayesian *credible* intervals, not
+   frequentist *confidence* intervals. Ridge deliberately **biases** every estimate
+   toward zero (the shrinkage that powers the whole method), so the interval describes
+   the posterior spread around a shrunken estimate — it does **not** carry the textbook
+   "covers the true value 95% of the time" guarantee. Calling them "confidence
+   intervals" would overstate them.
+2. **Ridge only.** The closed form exists only for the L2 penalty. The **lasso** and
+   **elastic-net** toggles (§8) have no clean posterior, so they show **no** interval
+   or band. (A bootstrap could supply them — see below — but isn't implemented.)
+3. **Approximate Σ.** The home-court / intercept term is treated as just another
+   penalized column when forming Σ, a minor approximation. The intervals are meant as
+   indicative uncertainty, not to three-decimal precision.
+
+> **Alternative not used: the bootstrap.** Resampling games with replacement, refitting
+> hundreds of times, and taking the spread of each coefficient would also yield
+> intervals — and would work for lasso/enet too. It's model-agnostic but much slower
+> and stochastic. The closed-form Bayesian route was chosen because it's exact, fast,
+> and native to ridge. A bootstrap path is a possible future addition for the sparse
+> models.
+
+---
+
+## 15. Caveats and known limitations
 
 - **Estimated possessions.** The `FGA − OREB + TO + 0.44·FTA` proxy is standard but
   not exact; there's no tracked-possession field in the feed.
@@ -531,7 +607,7 @@ star recovery, and shrinkage behavior.
 
 ---
 
-## 15. Glossary
+## 16. Glossary
 
 - **RAPM** — Regularized Adjusted Plus-Minus. A player's effect on score margin per
   100 possessions, adjusted for teammates and opponents, with a shrinkage penalty.
@@ -555,6 +631,11 @@ star recovery, and shrinkage behavior.
   home-offense indicator coefficient (O/D model).
 - **Net margin / net rating** — points scored minus points allowed (per game, or per
   100 possessions).
+- **Credible interval** — a Bayesian uncertainty range; here `rating ± 1.96·SD` from
+  the ridge posterior (§14). Distinct from a frequentist confidence interval because
+  ridge estimates are intentionally biased toward zero.
+- **Posterior standard deviation (SD)** — `√(Σ_ii)` from the ridge posterior covariance
+  `Σ = σ²(XᵀWX + λI)⁻¹`; the per-player uncertainty that drives the ± intervals.
 
 ---
 

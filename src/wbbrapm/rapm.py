@@ -107,6 +107,47 @@ def _fit(X, y, w, lam, kind: str = "ridge", system: str = "margin"):
     return model
 
 
+def _ridge_posterior(X, y, w, lam, model):
+    """Dense posterior covariance Σ = σ²·(XᵀWX + λI)⁻¹ for a ridge fit.
+
+    Ridge is the posterior mean of a Bayesian linear model with a Gaussian
+    prior β ~ N(0, σ²/λ); Σ is that posterior's covariance, so sqrt(diag Σ)
+    gives each coefficient's posterior standard deviation (a *credible*
+    interval, not a classical CI - ridge is deliberately biased toward 0).
+
+    σ² is the weighted residual variance with effective degrees of freedom
+    edf = trace(A⁻¹·XᵀWX). The intercept/home-court term is treated as just
+    another penalized column here, so Σ is an approximation - good enough for
+    indicative uncertainty bands. Returns (Sigma, sigma2).
+    """
+    Xw = X.multiply(w[:, np.newaxis]).tocsr()
+    B = (X.T @ Xw).tocsr()                     # XᵀWX (sparse)
+    A = B.toarray()
+    A[np.diag_indices_from(A)] += lam
+    A_inv = np.linalg.inv(A)
+    edf = float(np.sum(A_inv * B))             # trace(A⁻¹B); both symmetric
+    resid = y - model.predict(X)
+    rss = float(np.sum(w * resid**2))
+    sigma2 = rss / max(X.shape[0] - edf, 1.0)
+    return sigma2 * A_inv, sigma2
+
+
+def ridge_od_sd(X, y, w, lam, model, n_players):
+    """Posterior SDs for ORAPM, DRAPM, and RAPM from the O/D system.
+
+    DRAPM = -D_coef so Var(DRAPM)=Var(D); RAPM = ORAPM + DRAPM = O_coef -
+    D_coef, whose variance needs the O/D cross-covariance (exact, from one Σ):
+        Var(RAPM_i) = Var(O_i) + Var(D_i) - 2·Cov(O_i, D_i).
+    """
+    Sigma, _ = _ridge_posterior(X, y, w, lam, model)
+    o = np.arange(n_players)
+    d = n_players + o
+    var_o = np.maximum(np.diag(Sigma)[o], 0.0)
+    var_d = np.maximum(np.diag(Sigma)[d], 0.0)
+    var_rapm = np.maximum(var_o + var_d - 2.0 * Sigma[o, d], 0.0)
+    return np.sqrt(var_o), np.sqrt(var_d), np.sqrt(var_rapm)
+
+
 def cv_lambda(X, y, w, groups, grid=LAMBDA_GRID, n_splits=CV_FOLDS) -> tuple[float, dict]:
     """Pick lambda by weighted MSE under GroupKFold grouped by game_id."""
     gkf = GroupKFold(n_splits=n_splits)
@@ -169,6 +210,10 @@ def fit_models_multi(stints: pd.DataFrame, col_of, non_d1_col, lam_margin=None, 
         om = _fit(Xo, yo, wo, lam_od, kind, system="od")
         out[kind] = _package_coefs(mm, om, n_players, lam_margin, lam_od,
                                    Xm.shape[0], cv_scores if kind == "ridge" else {})
+        if kind == "ridge":
+            # Bayesian credible intervals only have a clean closed form for ridge.
+            o_sd, d_sd, r_sd = ridge_od_sd(Xo, yo, wo, lam_od, om, n_players)
+            out[kind].update(orapm_sd=o_sd, drapm_sd=d_sd, rapm_sd=r_sd)
         if verbose and kind != "ridge":
             nz = int((out[kind]["rapm_margin"] != 0).sum())
             print(f"  {kind}: {nz}/{n_players - 1} players nonzero (margin model)")
@@ -207,6 +252,7 @@ def fit_phase_ratings(
         n_players = non_d1_col + 1
         o = m.coef_[:n_players]
         d = -m.coef_[n_players: 2 * n_players]
+        o_sd, d_sd, r_sd = ridge_od_sd(Xo, yo, wo, lam_od, m, n_players)
 
         seconds: dict[int, float] = {}
         for s in sub.itertuples(index=False):
@@ -220,6 +266,8 @@ def fit_phase_ratings(
                 "athlete_id": a, "phase": phase, "start": start, "end": end,
                 "orapm": float(o[c]), "drapm": float(d[c]),
                 "rapm": float(o[c] + d[c]),
+                "orapm_sd": float(o_sd[c]), "drapm_sd": float(d_sd[c]),
+                "rapm_sd": float(r_sd[c]),
                 "minutes": seconds.get(a, 0.0) / 60.0,
             })
     return pd.DataFrame(rows)
@@ -326,6 +374,9 @@ def assemble_ratings(
     df["orapm"] = [coefs["orapm"][idx[a]] for a in d1_players]
     df["drapm"] = [coefs["drapm"][idx[a]] for a in d1_players]
     df["rapm"] = df["orapm"] + df["drapm"]
+    for sd in ("orapm_sd", "drapm_sd", "rapm_sd"):  # ridge only; absent for lasso/enet
+        if sd in coefs:
+            df[sd] = [coefs[sd][idx[a]] for a in d1_players]
     if decomp is not None:
         for k in DECOMP_COLS:
             df[k] = [decomp[k][idx[a]] for a in d1_players]
